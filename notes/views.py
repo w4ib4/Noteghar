@@ -41,3 +41,22 @@ def note_list_view(request):
         'total_notes': notes.count()
     }
     return render(request, 'notes/note_list.html', context)
+
+def note_detail_view(request, pk):
+    """
+    Display note details
+    """
+    note = get_object_or_404(Note, pk=pk, status='approved')
+    note.view_count += 1
+    note.save(update_fields=['view_count'])
+    
+    # To Check if user has downloaded the note
+    has_downloaded = False
+    if request.user.is_authenticated:
+        has_downloaded = Download.objects.filter(note=note, user=request.user).exists()
+    
+    context = {
+        'note': note,
+        'has_downloaded': has_downloaded,
+    }
+    return render(request, 'notes/note_detail.html', context)
