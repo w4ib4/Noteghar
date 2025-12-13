@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Note - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-upload"></i> Upload New Note</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        Your note will be reviewed by moderators before being published. 
+                        Accepted formats: PDF, DOC, DOCX, PPT, PPTX (Max 10MB)
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data" id="uploadForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Title *</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Description *</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Course *</label>
+                                {{ form.course }}
+                                {% if form.course.errors %}
+                                    <div class="text-danger small">{{ form.course.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Semester *</label>
+                                {{ form.semester }}
+                                {% if form.semester.errors %}
+                                    <div class="text-danger small">{{ form.semester.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Subject *</label>
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                    <div class="text-danger small">{{ form.subject.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">File *</label>
+                            {{ form.file }}
+                            <div class="form-text">Accepted formats: PDF, DOC, DOCX, PPT, PPTX (Max 10MB)</div>
+                            {% if form.file.errors %}
+                                <div class="text-danger small">{{ form.file.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Tags (optional)</label>
+                            {{ form.tags }}
+                            <div class="form-text">Comma-separated tags (e.g., important, midterm, chapter1)</div>
+                            {% if form.tags.errors %}
+                                <div class="text-danger small">{{ form.tags.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-upload"></i> Upload Note
+                            </button>
+                            <a href="{% url 'notes:list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#id_course, #id_semester').change(function() {
+        var courseId = $('#id_course').val();
+        var semesterId = $('#id_semester').val();
+        
+        if (courseId && semesterId) {
+            $.ajax({
+                url: '{% url "notes:ajax_load_subjects" %}',
+                data: {
+                    'course_id': courseId,
+                    'semester_id': semesterId
+                },
+                success: function(data) {
+                    var subjectSelect = $('#id_subject');
+                    subjectSelect.empty();
+                    subjectSelect.append('<option value="">---------</option>');
+                    
+                    $.each(data.subjects, function(index, subject) {
+                        subjectSelect.append(
+                            $('<option></option>').val(subject.id).text(subject.code + ' - ' + subject.name)
+                        );
+                    });
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

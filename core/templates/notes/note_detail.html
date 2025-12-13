@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ note.title }} - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h2>{{ note.title }}</h2>
+                        <span class="badge bg-primary fs-6">{{ note.get_file_extension }}</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <span class="badge bg-info me-2">{{ note.course.code }}</span>
+                        <span class="badge bg-success me-2">Semester {{ note.semester.number }}</span>
+                        <span class="badge bg-warning text-dark">{{ note.subject.code }}</span>
+                    </div>
+                    
+                    <h5>Description</h5>
+                    <p class="text-muted">{{ note.description }}</p>
+                    
+                    {% if note.tags %}
+                    <div class="mb-3">
+                        <h6>Tags:</h6>
+                        {% for tag in note.tags.split ',' %}
+                            <span class="badge bg-secondary me-1">{{ tag.strip }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <i class="fas fa-download fa-2x text-primary"></i>
+                            <p class="mb-0"><strong>{{ note.download_count }}</strong></p>
+                            <small class="text-muted">Downloads</small>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-eye fa-2x text-success"></i>
+                            <p class="mb-0"><strong>{{ note.view_count }}</strong></p>
+                            <small class="text-muted">Views</small>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-file fa-2x text-info"></i>
+                            <p class="mb-0"><strong>{{ note.get_file_size_mb }} MB</strong></p>
+                            <small class="text-muted">File Size</small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'notes:download' note.pk %}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-download"></i> Download Note
+                        </a>
+                        {% if has_downloaded %}
+                            <p class="text-center text-success mt-2">
+                                <i class="fas fa-check-circle"></i> You've downloaded this note
+                            </p>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-sign-in-alt"></i> Login to Download
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Course:</strong><br>{{ note.course.name }}</p>
+                    <p><strong>Subject:</strong><br>{{ note.subject.name }}</p>
+                    <p><strong>Semester:</strong><br>{{ note.semester.name }}</p>
+                    <p><strong>Uploaded by:</strong><br>{{ note.uploaded_by.username }}</p>
+                    <p><strong>Uploaded on:</strong><br>{{ note.created_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-share-alt"></i> Share</h5>
+                </div>
+                <div class="card-body text-center">
+                    <button class="btn btn-sm btn-outline-primary" onclick="copyLink()">
+                        <i class="fas fa-copy"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Link copied to clipboard!');
+}
+</script>
+{% endblock %}
