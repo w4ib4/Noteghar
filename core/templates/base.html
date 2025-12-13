@@ -7,22 +7,28 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Clean, minimal color scheme */
+        /* Modern color scheme for education platform */
         :root {
-            --primary: #2563eb;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --border: #e2e8f0;
+            --primary: #1E3A8A;        /* Deep Blue - trust & intelligence */
+            --primary-light: #2563EB;  /* Lighter blue for hover */
+            --secondary: #22C55E;      /* Soft Green - growth & success */
+            --accent: #F59E0B;         /* Warm Amber - energy */
+            --dark: #0f172a;           /* Dark text */
+            --light: #F8FAFC;          /* Light background */
+            --white: #FFFFFF;          /* Pure white */
+            --border: #E2E8F0;         /* Subtle borders */
+            --text-muted: #64748B;     /* Muted text */
         }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             color: var(--dark);
+            background: var(--white);
         }
         
-        /* Simple navbar */
+        /* Navbar with deep blue */
         .navbar {
-            background: white;
+            background: var(--white);
             border-bottom: 1px solid var(--border);
             padding: 1rem 0;
         }
@@ -33,53 +39,83 @@
             color: var(--primary) !important;
         }
         
-        /* Clean hero section */
+        .nav-link {
+            color: var(--dark) !important;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary) !important;
+        }
+        
+        /* Hero section - clean white with blue accent */
         .hero {
-            background: white;
-            padding: 80px 0;
+            background: var(--white);
+            padding: 100px 0;
         }
         
         .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
+            font-size: 3.5rem;
+            font-weight: 800;
             color: var(--dark);
-            line-height: 1.2;
+            line-height: 1.1;
+        }
+        
+        .hero h1 span {
+            color: var(--primary);
         }
         
         .hero p {
             font-size: 1.25rem;
-            color: #64748b;
+            color: var(--text-muted);
             margin: 1.5rem 0;
+            line-height: 1.6;
         }
         
-        /* Simple buttons */
+        /* Buttons - primary deep blue, secondary green */
         .btn-primary {
             background: var(--primary);
             border: none;
-            padding: 12px 32px;
-            font-weight: 500;
+            padding: 14px 32px;
+            font-weight: 600;
             border-radius: 8px;
+            color: var(--white);
+            transition: all 0.2s;
         }
         
         .btn-primary:hover {
-            background: #1d4ed8;
+            background: var(--primary-light);
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: var(--secondary);
+            border: none;
+            padding: 14px 32px;
+            font-weight: 600;
+            border-radius: 8px;
+            color: var(--white);
+        }
+        
+        .btn-success:hover {
+            background: #16A34A;
         }
         
         .btn-outline {
-            background: white;
+            background: transparent;
             border: 2px solid var(--primary);
             color: var(--primary);
             padding: 12px 32px;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 8px;
         }
         
         .btn-outline:hover {
             background: var(--primary);
-            color: white;
+            color: var(--white);
         }
         
-        /* Stats section */
+        /* Stats section - light background */
         .stats {
             background: var(--light);
             padding: 60px 0;
@@ -93,59 +129,63 @@
         }
         
         .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 3rem;
+            font-weight: 800;
             color: var(--primary);
             display: block;
         }
         
         .stat-label {
-            color: #64748b;
-            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
         }
         
-        /* Feature cards - minimal */
+        /* Feature cards - clean with blue accent on hover */
         .feature-card {
-            padding: 2rem;
-            background: white;
-            border: 1px solid var(--border);
+            padding: 2.5rem;
+            background: var(--white);
+            border: 2px solid var(--border);
             border-radius: 12px;
             height: 100%;
-            transition: border-color 0.2s;
+            transition: all 0.3s;
         }
         
         .feature-card:hover {
             border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.1);
         }
         
         .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--light);
-            border-radius: 8px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary);
+            color: var(--white);
             font-size: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
         
         .feature-card h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.35rem;
+            font-weight: 700;
             margin-bottom: 0.75rem;
+            color: var(--dark);
         }
         
         .feature-card p {
-            color: #64748b;
-            line-height: 1.6;
+            color: var(--text-muted);
+            line-height: 1.7;
             margin: 0;
         }
         
-        /* How it works - simple */
+        /* How it works - with green accents */
         .how-section {
-            padding: 80px 0;
+            padding: 100px 0;
+            background: var(--white);
         }
         
         .step {
@@ -154,80 +194,84 @@
         }
         
         .step-number {
-            width: 48px;
-            height: 48px;
-            background: var(--primary);
-            color: white;
+            width: 56px;
+            height: 56px;
+            background: var(--secondary);
+            color: var(--white);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.25rem;
-            margin: 0 auto 1rem;
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin: 0 auto 1.25rem;
         }
         
         .step h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1.35rem;
+            font-weight: 700;
             margin-bottom: 0.75rem;
+            color: var(--dark);
         }
         
         .step p {
-            color: #64748b;
+            color: var(--text-muted);
             margin: 0;
+            line-height: 1.6;
         }
         
-        /* CTA section */
+        /* CTA section - deep blue background */
         .cta-section {
             background: var(--primary);
-            color: white;
-            padding: 80px 0;
+            color: var(--white);
+            padding: 100px 0;
             text-align: center;
         }
         
         .cta-section h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 3rem;
+            font-weight: 800;
             margin-bottom: 1rem;
         }
         
         .cta-section p {
-            font-size: 1.25rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
+            font-size: 1.35rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
         }
         
         .btn-white {
-            background: white;
+            background: var(--white);
             color: var(--primary);
-            padding: 12px 32px;
+            padding: 14px 32px;
             border: none;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 8px;
         }
         
         .btn-white:hover {
             background: var(--light);
+            color: var(--primary);
         }
         
-        /* Footer */
+        /* Footer - clean */
         footer {
-            background: white;
+            background: var(--white);
             border-top: 1px solid var(--border);
-            padding: 40px 0 20px;
-            color: #64748b;
+            padding: 60px 0 30px;
+            color: var(--text-muted);
         }
         
         footer h5 {
             color: var(--dark);
-            font-weight: 600;
-            margin-bottom: 1rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
         }
         
         footer a {
-            color: #64748b;
+            color: var(--text-muted);
             text-decoration: none;
+            transition: color 0.2s;
         }
         
         footer a:hover {
@@ -236,30 +280,83 @@
         
         /* Section titles */
         .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.75rem;
+            font-weight: 800;
             margin-bottom: 1rem;
             text-align: center;
+            color: var(--dark);
         }
         
         .section-subtitle {
             font-size: 1.25rem;
-            color: #64748b;
+            color: var(--text-muted);
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;
+        }
+        
+        /* Alerts */
+        .alert-success {
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid #BBF7D0;
+        }
+        
+        .alert-danger {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+        }
+        
+        .alert-warning {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+        
+        .alert-info {
+            background: #DBEAFE;
+            color: #1E3A8A;
+            border: 1px solid #BFDBFE;
+        }
+        
+        /* Badges */
+        .badge {
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        
+        .badge.bg-danger {
+            background: #EF4444 !important;
+        }
+        
+        .badge.bg-success {
+            background: var(--secondary) !important;
         }
         
         /* Mobile responsive */
         @media (max-width: 768px) {
+            .hero {
+                padding: 60px 0;
+            }
+            
             .hero h1 {
-                font-size: 2rem;
+                font-size: 2.25rem;
             }
             
             .hero p {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
             
             .stat-number {
+                font-size: 2.25rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .cta-section h2 {
                 font-size: 2rem;
             }
         }
@@ -297,6 +394,7 @@
                                 <li><a class="dropdown-item" href="{% url 'notes:my_notes' %}">My Notes</a></li>
                                 {% if user.is_admin_user or user.is_moderator %}
                                     <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin Panel</a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
