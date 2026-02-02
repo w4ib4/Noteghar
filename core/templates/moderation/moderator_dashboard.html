@@ -1,0 +1,473 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderator Dashboard - NoteGhar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mod-header {
+        background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        height: 100%;
+        transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+        border-color: #DC2626;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+    }
+    
+    .stat-card.urgent {
+        border-color: #DC2626;
+        background: #FEE2E2;
+    }
+    
+    .stat-card.warning {
+        border-color: #F59E0B;
+        background: #FEF3C7;
+    }
+    
+    .stat-card.success {
+        border-color: #22C55E;
+        background: #DCFCE7;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .stat-icon.red { background: #FEE2E2; color: #DC2626; }
+    .stat-icon.amber { background: #FEF3C7; color: #F59E0B; }
+    .stat-icon.green { background: #DCFCE7; color: #22C55E; }
+    .stat-icon.blue { background: #DBEAFE; color: #1E3A8A; }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 8px 0 4px 0;
+    }
+    
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .mod-card {
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .mod-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .note-item, .report-item, .action-item {
+        padding: 16px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 12px;
+        transition: all 0.2s;
+    }
+    
+    .note-item:hover, .report-item:hover, .action-item:hover {
+        border-color: #DC2626;
+        background: #FEF2F2;
+    }
+    
+    .badge-urgent {
+        background: #DC2626;
+        color: white;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+    }
+    
+    .quick-action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+    
+    .quick-action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--dark);
+        font-weight: 600;
+        transition: all 0.3s;
+        background: white;
+    }
+    
+    .quick-action-btn:hover {
+        border-color: #DC2626;
+        background: #FEF2F2;
+        color: #DC2626;
+        transform: translateY(-2px);
+    }
+    
+    .quick-action-btn i {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    
+    .contributor-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .contributor-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="mod-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="mb-2">
+                    <i class="fas fa-shield-alt"></i> Moderator Dashboard
+                </h1>
+                <p class="mb-0" style="opacity: 0.9;">
+                    Welcome back, {{ user.username }}! Keep the platform safe and quality-focused.
+                </p>
+            </div>
+            <div class="text-end">
+                <div style="font-size: 0.9rem; opacity: 0.9;">Your Actions</div>
+                <div style="font-size: 2rem; font-weight: 800;">{{ my_actions_count }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Alert Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card urgent">
+                <div class="stat-icon red">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-value">{{ pending_notes_count }}</div>
+                <div class="stat-label">Pending Notes</div>
+                {% if needs_attention > 0 %}
+                    <small class="text-danger">
+                        <i class="fas fa-clock"></i> {{ needs_attention }} urgent (>48h)
+                    </small>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card warning">
+                <div class="stat-icon amber">
+                    <i class="fas fa-flag"></i>
+                </div>
+                <div class="stat-value">{{ pending_reports_count }}</div>
+                <div class="stat-label">Pending Reports</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-value">{{ approval_rate }}%</div>
+                <div class="stat-label">Approval Rate</div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-value">{{ total_notes }}</div>
+                <div class="stat-label">Total Notes</div>
+                <small class="text-muted">
+                    {{ approved_notes }} approved, {{ rejected_notes }} rejected
+                </small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="quick-action-grid mb-4">
+        <a href="{% url 'moderation:pending_notes' %}" class="quick-action-btn">
+            <i class="fas fa-file-alt"></i>
+            <span>Review Pending Notes</span>
+            {% if pending_notes_count > 0 %}
+                <span class="badge-urgent mt-2">{{ pending_notes_count }}</span>
+            {% endif %}
+        </a>
+        
+        <a href="{% url 'moderation:pending_reports' %}" class="quick-action-btn">
+            <i class="fas fa-flag"></i>
+            <span>Review Reports</span>
+            {% if pending_reports_count > 0 %}
+                <span class="badge-urgent mt-2">{{ pending_reports_count }}</span>
+            {% endif %}
+        </a>
+        
+        <a href="{% url 'moderation:history' %}" class="quick-action-btn">
+            <i class="fas fa-history"></i>
+            <span>Moderation History</span>
+        </a>
+        
+        <a href="{% url 'admin:index' %}" class="quick-action-btn">
+            <i class="fas fa-cog"></i>
+            <span>Admin Panel</span>
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- Pending Notes -->
+            <div class="mod-card">
+                <h3>
+                    <i class="fas fa-file-alt text-danger"></i>
+                    Recent Pending Notes
+                </h3>
+                
+                {% if recent_notes %}
+                    {% for note in recent_notes %}
+                    <div class="note-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h5 style="font-size: 1rem; font-weight: 600; margin-bottom: 6px;">
+                                    {{ note.title|truncatewords:10 }}
+                                </h5>
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> {{ note.uploaded_by.username }}
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-book"></i> {{ note.subject.name }}
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-clock"></i> {{ note.created_at|timesince }} ago
+                                </small>
+                                {% if note.created_at < request.now|add:"-2 days" %}
+                                    <span class="badge-urgent ms-2">URGENT</span>
+                                {% endif %}
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'notes:detail' note.pk %}" 
+                                   class="btn btn-sm btn-outline-primary" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'moderation:approve_note' note.pk %}?next=moderation:dashboard" 
+                                   class="btn btn-sm btn-success"
+                                   onclick="return confirm('Approve this note?')">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                <a href="{% url 'moderation:reject_note' note.pk %}" 
+                                   class="btn btn-sm btn-danger">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if pending_notes_count > 10 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'moderation:pending_notes' %}" class="btn btn-primary">
+                                View All {{ pending_notes_count }} Pending Notes
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-check-circle fa-3x mb-3" style="opacity: 0.3;"></i>
+                        <p>No pending notes. Great job!</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Pending Reports -->
+            <div class="mod-card">
+                <h3>
+                    <i class="fas fa-flag text-warning"></i>
+                    Recent Reports
+                </h3>
+                
+                {% if recent_reports %}
+                    {% for report in recent_reports %}
+                    <div class="report-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-warning text-dark">{{ report.get_reason_display }}</span>
+                                    <small class="text-muted">
+                                        {{ report.created_at|timesince }} ago
+                                    </small>
+                                </div>
+                                <h6 style="font-size: 0.95rem; margin-bottom: 4px;">
+                                    Note: {{ report.note.title|truncatewords:8 }}
+                                </h6>
+                                <small class="text-muted">
+                                    Reported by {{ report.reported_by.username }}
+                                </small>
+                                <p class="mb-0 mt-2" style="font-size: 0.9rem;">
+                                    {{ report.description|truncatewords:15 }}
+                                </p>
+                            </div>
+                            <div class="btn-group-vertical btn-group-sm">
+                                <a href="{% url 'moderation:review_report' report.pk %}" 
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-gavel"></i> Review
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if pending_reports_count > 10 %}
+                        <div class="text-center mt-3">
+                            <a href="{% url 'moderation:pending_reports' %}" class="btn btn-primary">
+                                View All {{ pending_reports_count }} Reports
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-shield-alt fa-3x mb-3" style="opacity: 0.3;"></i>
+                        <p>No pending reports. Community is safe!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="col-lg-4">
+            <!-- Your Stats -->
+            <div class="mod-card">
+                <h3>
+                    <i class="fas fa-user-shield text-primary"></i>
+                    Your Moderation Stats
+                </h3>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Actions</span>
+                        <strong>{{ my_actions_count }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-success">Approvals</span>
+                        <strong>{{ my_approvals }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-danger">Rejections</span>
+                        <strong>{{ my_rejections }}</strong>
+                    </div>
+                </div>
+                
+                <a href="{% url 'moderation:history' %}?moderator={{ user.id }}" 
+                   class="btn btn-sm btn-outline-primary w-100">
+                    View My History
+                </a>
+            </div>
+            
+            <!-- Top Contributors -->
+            <div class="mod-card">
+                <h3>
+                    <i class="fas fa-star text-warning"></i>
+                    Top Contributors
+                </h3>
+                
+                {% for contributor in top_contributors %}
+                <div class="contributor-item">
+                    <div>
+                        <strong>{{ contributor.username }}</strong>
+                        <br>
+                        <small class="text-muted">{{ contributor.institution|default:"Student" }}</small>
+                    </div>
+                    <div class="text-end">
+                        <div style="font-weight: 700; color: var(--secondary);">
+                            {{ contributor.approved_count }}
+                        </div>
+                        <small class="text-muted">notes</small>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No contributors yet</p>
+                {% endfor %}
+            </div>
+            
+            <!-- Recent Actions -->
+            <div class="mod-card">
+                <h3>
+                    <i class="fas fa-history text-info"></i>
+                    Recent Actions
+                </h3>
+                
+                {% for action in recent_actions|slice:":5" %}
+                <div class="action-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>{{ action.moderator.username }}</strong>
+                            {% if action.action_type == 'approve' %}
+                                <span class="text-success">approved</span>
+                            {% elif action.action_type == 'reject' %}
+                                <span class="text-danger">rejected</span>
+                            {% else %}
+                                <span class="text-warning">{{ action.action_type }}</span>
+                            {% endif %}
+                            <br>
+                            <small class="text-muted">
+                                {% if action.note %}
+                                    {{ action.note.title|truncatewords:5 }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <small class="text-muted">
+                            {{ action.created_at|timesince }} ago
+                        </small>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center">No recent actions</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Pending Reports - Moderation{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-flag text-warning"></i> Pending Reports</h2>
+            <p class="text-muted">{{ total_count }} reports awaiting review</p>
+        </div>
+        <a href="{% url 'moderation:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    {% if reports %}
+        {% for report in reports %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge bg-warning text-dark">{{ report.get_reason_display }}</span>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> {{ report.created_at|date:"M d, Y H:i" }}
+                            </small>
+                        </div>
+                        
+                        <h5>Note: {{ report.note.title }}</h5>
+                        
+                        <p class="mb-2"><strong>Reported by:</strong> {{ report.reported_by.username }}</p>
+                        
+                        <p class="mb-0">
+                            <strong>Description:</strong><br>
+                            {{ report.description }}
+                        </p>
+                    </div>
+                    
+                    <div class="col-md-3 text-end">
+                        <a href="{% url 'notes:detail' report.note.pk %}" 
+                           class="btn btn-outline-primary btn-sm w-100 mb-2" target="_blank">
+                            <i class="fas fa-eye"></i> View Note
+                        </a>
+                        <a href="{% url 'moderation:review_report' report.pk %}" 
+                           class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-gavel"></i> Review Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-success text-center">
+            <i class="fas fa-shield-alt fa-3x mb-3"></i>
+            <h4>All Clear!</h4>
+            <p class="mb-0">There are no pending reports to review.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

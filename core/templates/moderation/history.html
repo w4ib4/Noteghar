@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderation History{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-history text-info"></i> Moderation History</h2>
+            <p class="text-muted">Recent moderation actions</p>
+        </div>
+        <a href="{% url 'moderation:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    {% if actions %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Moderator</th>
+                                <th>Action</th>
+                                <th>Target</th>
+                                <th>Reason</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for action in actions %}
+                            <tr>
+                                <td>{{ action.moderator.username }}</td>
+                                <td>
+                                    {% if action.action_type == 'approve' %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% elif action.action_type == 'reject' %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% elif action.action_type == 'remove' %}
+                                        <span class="badge bg-warning text-dark">Removed</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ action.get_action_type_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if action.note %}
+                                        {{ action.note.title|truncatewords:6 }}
+                                    {% elif action.target_user %}
+                                        User: {{ action.target_user.username }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ action.reason|truncatewords:8 }}</td>
+                                <td>{{ action.created_at|date:"M d, Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            <p class="mb-0">No moderation history available.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
