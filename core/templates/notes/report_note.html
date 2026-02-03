@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Note - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-flag"></i> Report Note</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i> You are reporting: <strong>{{ note.title }}</strong>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.reason.label_tag }}
+                            {{ form.reason }}
+                            {% if form.reason.errors %}
+                                <div class="text-danger small">{{ form.reason.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-flag"></i> Submit Report
+                        </button>
+                        <a href="{% url 'notes:detail' note.pk %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

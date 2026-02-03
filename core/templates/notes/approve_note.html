@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Approve Note - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-check"></i> Approve Note</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Title:</strong> {{ note.title }}</p>
+                    <p><strong>Uploaded by:</strong> {{ note.uploaded_by.username }}</p>
+                    <p><strong>Subject:</strong> {{ note.subject.name }}</p>
+                    <p><strong>File:</strong> {{ note.get_file_extension }} ({{ note.get_file_size_mb }} MB)</p>
+                    
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Are you sure you want to approve this note? It will become visible to all users.
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Yes, Approve
+                        </button>
+                        <a href="{% url 'notes:moderation_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

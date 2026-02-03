@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Report - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-gavel"></i> Review Report</h4>
+                </div>
+                <div class="card-body">
+                    <h5>Report Details</h5>
+                    <p><strong>Note:</strong> {{ report.note.title }}</p>
+                    <p><strong>Reported by:</strong> {{ report.reported_by.username }}</p>
+                    <p><strong>Reason:</strong> <span class="badge bg-warning">{{ report.get_reason_display }}</span></p>
+                    <p><strong>Date:</strong> {{ report.created_at|date:"M d, Y H:i" }}</p>
+                    
+                    <div class="alert alert-info">
+                        <strong>Description:</strong><br>
+                        {{ report.description }}
+                    </div>
+                    
+                    <a href="{% url 'notes:detail' report.note.pk %}" class="btn btn-info mb-3" target="_blank">
+                        <i class="fas fa-eye"></i> View Reported Note
+                    </a>
+                    
+                    <hr>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Moderator Notes</label>
+                            <textarea name="moderator_notes" class="form-control" rows="3" placeholder="Add any notes about your decision..."></textarea>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="reject_note" id="rejectNote">
+                            <label class="form-check-label" for="rejectNote">
+                                Also reject the reported note
+                            </label>
+                        </div>
+                        
+                        <button type="submit" name="action" value="resolve" class="btn btn-success">
+                            <i class="fas fa-check"></i> Resolve Report
+                        </button>
+                        <button type="submit" name="action" value="dismiss" class="btn btn-warning">
+                            <i class="fas fa-times"></i> Dismiss Report
+                        </button>
+                        <a href="{% url 'notes:moderation_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

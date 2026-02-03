@@ -12,27 +12,51 @@
                         <h2>{{ note.title }}</h2>
                         <span class="badge bg-primary fs-6">{{ note.get_file_extension }}</span>
                     </div>
-                    
+
+                    <!-- Rating Display -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            {% if average_rating > 0 %}
+                                <div class="text-warning me-2">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= average_rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% elif forloop.counter|add:"-0.5" <= average_rating %}
+                                            <i class="fas fa-star-half-alt"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="text-muted">
+                                    {{ average_rating }}/5 ({{ rating_count }} rating{{ rating_count|pluralize }})
+                                </span>
+                            {% else %}
+                                <span class="text-muted">No ratings yet</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
                     <div class="mb-4">
                         <span class="badge bg-info me-2">{{ note.course.code }}</span>
                         <span class="badge bg-success me-2">Semester {{ note.semester.number }}</span>
                         <span class="badge bg-warning text-dark">{{ note.subject.code }}</span>
                     </div>
-                    
+
                     <h5>Description</h5>
                     <p class="text-muted">{{ note.description }}</p>
-                    
-                    {% if note.tags %}
+
+                    {% if tag_list %}
                     <div class="mb-3">
                         <h6>Tags:</h6>
-                        {% for tag in note.tags.split ',' %}
-                            <span class="badge bg-secondary me-1">{{ tag.strip }}</span>
+                        {% for tag in tag_list %}
+                            <span class="badge bg-secondary me-1">{{ tag }}</span>
                         {% endfor %}
                     </div>
                     {% endif %}
-                    
+
                     <hr>
-                    
+
                     <div class="row text-center">
                         <div class="col-md-4">
                             <i class="fas fa-download fa-2x text-primary"></i>
@@ -50,11 +74,11 @@
                             <small class="text-muted">File Size</small>
                         </div>
                     </div>
-                    
+
                     <hr>
-                    
+
                     {% if user.is_authenticated %}
-                        <a href="{% url 'notes:download' note.pk %}" class="btn btn-primary btn-lg w-100">
+                        <a href="{% url 'notes:download' note.pk %}" class="btn btn-primary btn-lg w-100 mb-2">
                             <i class="fas fa-download"></i> Download Note
                         </a>
                         {% if has_downloaded %}
@@ -63,14 +87,104 @@
                             </p>
                         {% endif %}
                     {% else %}
-                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-lg w-100">
+                        <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg w-100">
                             <i class="fas fa-sign-in-alt"></i> Login to Download
+                        </a>
+                    {% endif %}
+
+                    <!-- Report Button -->
+                    {% if user.is_authenticated and user != note.uploaded_by %}
+                        <a href="{% url 'notes:report' note.pk %}" class="btn btn-outline-danger btn-sm w-100 mt-2">
+                            <i class="fas fa-flag"></i> Report This Note
                         </a>
                     {% endif %}
                 </div>
             </div>
+
+            <!-- Rating Section -->
+            {% if user.is_authenticated %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Rate This Note</h5>
+                </div>
+                <div class="card-body">
+                    {% if user_rating %}
+                        <div class="alert alert-info">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Your Rating: {{ user_rating.rating }}/5</strong>
+                                    {% if user_rating.review %}
+                                        <p class="mb-0 mt-2">{{ user_rating.review }}</p>
+                                    {% endif %}
+                                </div>
+                                <form method="post" action="{% url 'notes:delete_rating' user_rating.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete your rating?')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#ratingForm">
+                            Update Rating
+                        </button>
+                        <div class="collapse mt-3" id="ratingForm">
+                    {% else %}
+                        <div id="ratingForm">
+                    {% endif %}
+                            <form method="post" action="{% url 'notes:rate' note.pk %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ rating_form.rating.label_tag }}
+                                    {{ rating_form.rating }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ rating_form.review.label_tag }}
+                                    {{ rating_form.review }}
+                                </div>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-star"></i> Submit Rating
+                                </button>
+                            </form>
+                        </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reviews/Ratings List -->
+            {% if ratings %}
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-comments"></i> Reviews ({{ ratings.count }})</h5>
+                </div>
+                <div class="card-body">
+                    {% for rating in ratings %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ rating.user.username }}</strong>
+                                <div class="text-warning">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= rating.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <small class="text-muted">{{ rating.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        {% if rating.review %}
+                            <p class="mt-2 mb-0">{{ rating.review }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
-        
+
         <div class="col-md-4">
             <div class="card shadow-sm mb-3">
                 <div class="card-header">
@@ -84,7 +198,7 @@
                     <p><strong>Uploaded on:</strong><br>{{ note.created_at|date:"M d, Y" }}</p>
                 </div>
             </div>
-            
+
             <div class="card shadow-sm">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="fas fa-share-alt"></i> Share</h5>
