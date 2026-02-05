@@ -1,5 +1,6 @@
 from django import forms
 from .models import Note, Course, Semester, Subject
+from .models import Rating, Report
 
 class NoteUploadForm(forms.ModelForm):
     """
@@ -102,3 +103,39 @@ class NoteSearchForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="All Subjects"
     )
+
+class RatingForm(forms.ModelForm):
+        """
+        Form for rating notes
+        """
+        class Meta:
+            model = Rating
+            fields = ['rating', 'review']
+            widgets = {
+                'rating': forms.Select(
+                    choices=[(i, f'{i} Stars') for i in range(1, 6)],
+                    attrs={'class': 'form-control'}
+                ),
+                'review': forms.Textarea(attrs={
+                    'class': 'form-control',
+                    'rows': 4,
+                    'placeholder': 'Share your thoughts about this note (optional)'
+                }),
+            }
+
+
+class ReportForm(forms.ModelForm):
+    """
+    Form for reporting notes
+    """
+    class Meta:
+        model = Report
+        fields = ['reason', 'description']
+        widgets = {
+            'reason': forms.Select(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Please describe the issue in detail'
+            }),
+        }

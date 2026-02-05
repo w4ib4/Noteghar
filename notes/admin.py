@@ -60,3 +60,30 @@ class DownloadAdmin(admin.ModelAdmin):
     list_filter = ('downloaded_at',)
     search_fields = ('note__title', 'user__username')
     readonly_fields = ('note', 'user', 'downloaded_at', 'ip_address')
+
+
+from .models import Rating, Report
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('note', 'user', 'rating', 'created_at')
+    list_filter = ('rating', 'created_at')
+    search_fields = ('note__title', 'user__username', 'review')
+    readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('note', 'reported_by', 'reason', 'status', 'created_at')
+    list_filter = ('status', 'reason', 'created_at')
+    search_fields = ('note__title', 'reported_by__username', 'description')
+    readonly_fields = ('created_at', 'reviewed_at')
+    
+    fieldsets = (
+        ('Report Information', {
+            'fields': ('note', 'reported_by', 'reason', 'description', 'created_at')
+        }),
+        ('Moderator Actions', {
+            'fields': ('status', 'reviewed_by', 'moderator_notes', 'reviewed_at')
+        }),
+    )
