@@ -45,11 +45,13 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'django_recaptcha',
 
      # Local apps
     'accounts',
     'core',
     'notes',
+    'moderation',
 ]
 
 
@@ -59,18 +61,57 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  
     'allauth.account.auth_backends.AuthenticationBackend',  # Allauth
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #Prints email to console
 LOGIN_REDIRECT_URL = '/'
 # Allauth settings
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # Allow login with username or email
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'optional'  # 'mandatory', 'optional', or 'none'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  
 ACCOUNT_USERNAME_REQUIRED = True
-SOCIALACCOUNT_AUTO_SIGNUP = True  # Auto create account on first Google login
+ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE = False
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+SOCIALACCOUNT_AUTO_SIGNUP = True 
+
+
+# Email confirmation settings
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300
+ACCOUNT_FORMS = {'login': 'accounts.forms.CustomAllauthLoginForm'}
+
+# Password validation - Strong passwords required
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,  # Minimum 8 characters
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# reCAPTCHA Keys (get from Google reCAPTCHA)
+RECAPTCHA_PUBLIC_KEY = '6LdT6TQsAAAAAEA3oeUK6NM8V-1OaxdEKSHkwIfP'
+RECAPTCHA_PRIVATE_KEY = '6LdT6TQsAAAAAA08xl84kfwhZngnbkOu9DDbkzXE'
+# For testing (shows a checkbox instead of invisible)
+RECAPTCHA_REQUIRED_SCORE = 0.85
 
 # Login/Logout URLs
 LOGIN_REDIRECT_URL = '/'  # Redirect to dashboard after login
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 SOCIALACCOUNT_LOGIN_ON_GET = True  # Allow social login on GET request
+ACCOUNT_LOGOUT_ON_GET = True # Allow logout on GET request
 
 # Google OAuth specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -103,13 +144,15 @@ ROOT_URLCONF = 'noteghar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notes.context_processors.moderation_stats',  # ADD THIS
             ],
         },
     },
@@ -179,7 +222,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Login/Logout URLs
-LOGIN_URL = 'accounts:login'
+LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = 'core:home'
 LOGOUT_REDIRECT_URL = 'core:home'
+
+
 
