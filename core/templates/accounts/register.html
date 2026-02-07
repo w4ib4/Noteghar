@@ -1,32 +1,15 @@
 {% extends 'base.html' %}
-{% load socialaccount %}
 
 {% block title %}Register - NoteGhar{% endblock %}
 
 {% block content %}
 <div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-7">
             <div class="card shadow">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4">Create Account</h2>
                     
-                    <!-- Google OAuth Button -->
-                    <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark w-100 mb-4 d-flex align-items-center justify-content-center" style="padding: 12px;">
-                        <svg width="20" height="20" style="margin-right: 12px;" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        Sign up with Google
-                    </a>
-                    
-                    <div class="text-center mb-3">
-                        <span class="text-muted">or</span>
-                    </div>
-                    
-                    <!-- Regular Registration Form -->
                     <form method="post">
                         {% csrf_token %}
                         
@@ -36,14 +19,19 @@
                             </div>
                         {% endif %}
                         
+                        <!-- Username -->
                         <div class="mb-3">
                             {{ form.username.label_tag }}
                             {{ form.username }}
                             {% if form.username.errors %}
                                 <div class="text-danger small">{{ form.username.errors }}</div>
                             {% endif %}
+                            <small class="form-text text-muted">
+                                Choose a unique username (letters, numbers, and @/./+/-/_ only)
+                            </small>
                         </div>
                         
+                        <!-- Email -->
                         <div class="mb-3">
                             {{ form.email.label_tag }}
                             {{ form.email }}
@@ -52,6 +40,7 @@
                             {% endif %}
                         </div>
                         
+                        <!-- Institution -->
                         <div class="mb-3">
                             {{ form.institution.label_tag }}
                             {{ form.institution }}
@@ -60,14 +49,70 @@
                             {% endif %}
                         </div>
                         
+                        <!-- Role Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Select Your Role</label>
+                            <div class="role-selection">
+                                {% for value, label in form.role.field.choices %}
+                                <div class="form-check mb-3 p-3 border rounded {% if forloop.first %}border-primary{% endif %}" 
+                                     style="cursor: pointer;">
+                                    <input class="form-check-input" type="radio" 
+                                           name="role" id="role_{{ value }}" 
+                                           value="{{ value }}"
+                                           {% if forloop.first %}checked{% endif %}>
+                                    <label class="form-check-label w-100" for="role_{{ value }}" style="cursor: pointer;">
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3 mt-1">
+                                                {% if value == 'student' %}
+                                                    <i class="fas fa-user-graduate fa-2x text-primary"></i>
+                                                {% else %}
+                                                    <i class="fas fa-shield-alt fa-2x text-danger"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <strong>
+                                                    {% if value == 'student' %}
+                                                        Student
+                                                    {% else %}
+                                                        Moderator
+                                                    {% endif %}
+                                                </strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    {% if value == 'student' %}
+                                                        Upload notes, download resources, rate and review materials
+                                                    {% else %}
+                                                        Review and approve content, maintain platform quality, help the community
+                                                        <span class="text-warning">(Requires admin approval)</span>
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.role.errors %}
+                                <div class="text-danger small">{{ form.role.errors }}</div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                {{ form.role.help_text }}
+                            </small>
+                        </div>
+                        
+                        <!-- Password 1 -->
                         <div class="mb-3">
                             {{ form.password1.label_tag }}
                             {{ form.password1 }}
                             {% if form.password1.errors %}
                                 <div class="text-danger small">{{ form.password1.errors }}</div>
                             {% endif %}
+                            <small class="form-text text-muted">
+                                Password must be at least 8 characters
+                            </small>
                         </div>
                         
+                        <!-- Password 2 -->
                         <div class="mb-3">
                             {{ form.password2.label_tag }}
                             {{ form.password2 }}
@@ -76,15 +121,40 @@
                             {% endif %}
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </button>
                     </form>
                     
-                    <div class="text-center mt-3">
+                    <div class="text-center mt-4">
                         <p>Already have an account? <a href="{% url 'accounts:login' %}">Login here</a></p>
+                    </div>
+                    
+                    <!-- Info Alert for Moderators -->
+                    <div class="alert alert-info mt-3" style="font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> Moderator accounts require admin approval before activation. 
+                        You'll receive an email once your account is approved.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .role-selection .form-check {
+        transition: all 0.3s;
+    }
+    
+    .role-selection .form-check:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .role-selection .form-check:has(input:checked) {
+        border-color: var(--primary) !important;
+        background-color: #f0f7ff;
+    }
+</style>
 {% endblock %}

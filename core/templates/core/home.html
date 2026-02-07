@@ -1,22 +1,31 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 <!-- Hero Section -->
 <section class="hero">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-7">
+            <div class="col-lg-7 animate__animated animate__fadeInLeft">
                 <h1>Share notes.<br>Learn together.</h1>
                 <p>Access thousands of study materials shared by students. Upload your notes and help others succeed.</p>
                 {% if not user.is_authenticated %}
-                    <a href="{% url 'accounts:register' %}" class="btn btn-primary me-2 mb-2">Get Started</a>
-                    <a href="{% url 'notes:list' %}" class="btn btn-outline mb-2">Browse Notes</a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary me-2 mb-2">
+                        Get Started
+                    </a>
+                    <a href="{% url 'notes:list' %}" class="btn btn-outline mb-2">
+                        Browse Notes
+                    </a>
                 {% else %}
-                    <a href="{% url 'notes:list' %}" class="btn btn-primary me-2 mb-2">Browse Notes</a>
-                    <a href="{% url 'notes:upload' %}" class="btn btn-outline mb-2">Upload Notes</a>
+                    <a href="{% url 'notes:list' %}" class="btn btn-primary me-2 mb-2">
+                        Browse Notes
+                    </a>
+                    <a href="{% url 'notes:upload' %}" class="btn btn-outline mb-2">
+                        Upload Notes
+                    </a>
                 {% endif %}
             </div>
-            <div class="col-lg-5 text-center d-none d-lg-block">
+            <div class="col-lg-5 text-center d-none d-lg-block animate__animated animate__fadeInRight">
                 <i class="fas fa-book-open" style="font-size: 12rem; color: #e2e8f0;"></i>
             </div>
         </div>
@@ -61,7 +70,7 @@
     <p class="section-subtitle">Everything you need to share and discover study materials</p>
     
     <div class="row g-4">
-        <div class="col-md-4">
+        <div class="col-md-4 animate__animated animate__fadeInUp">
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-upload"></i>
@@ -71,7 +80,7 @@
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-search"></i>
@@ -81,7 +90,7 @@
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-star"></i>
@@ -91,7 +100,7 @@
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-shield-alt"></i>
@@ -101,7 +110,7 @@
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s">
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-users"></i>
@@ -111,7 +120,7 @@
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s">
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-mobile-alt"></i>
@@ -171,4 +180,5 @@
         {% endif %}
     </div>
 </section>
+
 {% endblock %}
