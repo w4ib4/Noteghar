@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Select Your Role{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <h1 class="section-title">Join NoteGhar</h1>
+        <p class="section-subtitle">Select your role to get started</p>
+    </div>
+    
+    <div class="row g-4">
+        <!-- Student Card -->
+        <div class="col-md-4">
+            <div class="role-card h-100">
+                <div class="role-icon student">
+                    <i class="fas fa-user-graduate fa-4x"></i>
+                </div>
+                <h3>Student</h3>
+                <p class="text-muted">Upload notes, download resources, rate materials, and collaborate with peers.</p>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check text-success"></i> Upload study materials</li>
+                    <li><i class="fas fa-check text-success"></i> Download unlimited notes</li>
+                    <li><i class="fas fa-check text-success"></i> Rate and review</li>
+                    <li><i class="fas fa-check text-success"></i> Build your profile</li>
+                </ul>
+                
+                <a href="{% url 'accounts:signup_student' %}" class="btn btn-primary w-100 mt-auto">
+                    <i class="fas fa-user-plus"></i> Sign Up as Student
+                </a>
+            </div>
+        </div>
+        
+        <!-- Moderator Card -->
+        <div class="col-md-4">
+            <div class="role-card h-100 featured">
+                <div class="badge-featured">Popular</div>
+                <div class="role-icon moderator">
+                    <i class="fas fa-shield-alt fa-4x"></i>
+                </div>
+                <h3>Moderator</h3>
+                <p class="text-muted">Review content, maintain quality, help the community grow, and specialize in your field.</p>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check text-success"></i> Review & approve notes</li>
+                    <li><i class="fas fa-check text-success"></i> Choose your specialization</li>
+                    <li><i class="fas fa-check text-success"></i> Maintain platform quality</li>
+                    <li><i class="fas fa-check text-success"></i> Help students succeed</li>
+                </ul>
+                
+                <div class="alert alert-warning small mb-3">
+                    <i class="fas fa-info-circle"></i> Requires admin approval
+                </div>
+                
+                <a href="{% url 'accounts:signup_moderator' %}" class="btn btn-danger w-100 mt-auto">
+                    <i class="fas fa-user-shield"></i> Apply as Moderator
+                </a>
+            </div>
+        </div>
+        
+        <!-- Admin Card -->
+        <div class="col-md-4">
+            <div class="role-card h-100">
+                <div class="role-icon admin">
+                    <i class="fas fa-user-cog fa-4x"></i>
+                </div>
+                <h3>Administrator</h3>
+                <p class="text-muted">Full system control, user management, analytics, and platform configuration.</p>
+                
+                <ul class="feature-list">
+                    <li><i class="fas fa-check text-success"></i> Full system access</li>
+                    <li><i class="fas fa-check text-success"></i> User management</li>
+                    <li><i class="fas fa-check text-success"></i> Platform analytics</li>
+                    <li><i class="fas fa-check text-success"></i> Configuration control</li>
+                </ul>
+                
+                <div class="alert alert-danger small mb-3">
+                    <i class="fas fa-lock"></i> Requires registration key
+                </div>
+                
+                <a href="{% url 'accounts:signup_admin' %}" class="btn btn-dark w-100 mt-auto">
+                    <i class="fas fa-key"></i> Admin Registration
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-5">
+        <p class="text-muted">
+            Already have an account? 
+            <a href="{% url 'account_login' %}" class="fw-bold">Login here</a>
+        </p>
+    </div>
+</div>
+
+<style>
+    .role-card {
+        background: white;
+        border: 3px solid var(--border);
+        border-radius: 16px;
+        padding: 2.5rem;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    
+    .role-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .role-card.featured {
+        border-color: var(--primary);
+        background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+    }
+    
+    .badge-featured {
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: var(--primary);
+        color: white;
+        padding: 6px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    
+    .role-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .role-icon.student {
+        background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+        color: var(--primary);
+    }
+    
+    .role-icon.moderator {
+        background: linear-gradient(135deg, #FEE2E2, #FECACA);
+        color: #DC2626;
+    }
+    
+    .role-icon.admin {
+        background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+        color: var(--dark);
+    }
+    
+    .role-card h3 {
+        text-align: center;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 1rem;
+    }
+    
+    .role-card p {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        min-height: 60px;
+    }
+    
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-list li {
+        padding: 0.5rem 0;
+        font-size: 0.95rem;
+    }
+    
+    .feature-list i {
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}

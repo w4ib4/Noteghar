@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderator Application{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white text-center py-4">
+                    <i class="fas fa-shield-alt fa-3x mb-2"></i>
+                    <h3>Moderator Application</h3>
+                    <p class="mb-0">Help maintain platform quality</p>
+                </div>
+                <div class="card-body p-5">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> Moderator accounts require administrator approval. 
+                        You'll receive an email once your application is reviewed.
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <h5 class="mb-3">Account Information</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>{{ form.username.label }}</label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                    <div class="text-danger small">{{ form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label>{{ form.email.label }}</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>{{ form.institution.label }}</label>
+                            {{ form.institution }}
+                            <small class="form-text text-muted">{{ form.institution.help_text }}</small>
+                            {% if form.institution.errors %}
+                                <div class="text-danger small">{{ form.institution.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3">Specialization</h5>
+                        <p class="text-muted">Select the courses you can moderate. You'll only receive notes from these areas.</p>
+                        
+                        <div class="mb-4">
+                            <label class="fw-bold">{{ form.specialization_courses.label }}</label>
+                            <div class="specialization-grid">
+                                {% for course in form.specialization_courses %}
+                                    <div class="form-check">
+                                        {{ course.tag }}
+                                        <label class="form-check-label" for="{{ course.id_for_label }}">
+                                            {{ course.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <small class="form-text text-muted">{{ form.specialization_courses.help_text }}</small>
+                            {% if form.specialization_courses.errors %}
+                                <div class="text-danger small">{{ form.specialization_courses.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="fw-bold">{{ form.specialization_subjects.label }} (Optional)</label>
+                            <div class="collapse" id="subjectSpecialization">
+                                <div class="specialization-grid border p-3 rounded">
+                                    {% for subject in form.specialization_subjects %}
+                                        <div class="form-check">
+                                            {{ subject.tag }}
+                                            <label class="form-check-label" for="{{ subject.id_for_label }}">
+                                                {{ subject.choice_label }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" 
+                                    data-bs-toggle="collapse" data-bs-target="#subjectSpecialization">
+                                <i class="fas fa-plus"></i> Add Subject-Level Specialization
+                            </button>
+                            <small class="form-text text-muted d-block mt-2">
+                                {{ form.specialization_subjects.help_text }}
+                            </small>
+                            {% if form.specialization_subjects.errors %}
+                                <div class="text-danger small">{{ form.specialization_subjects.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="fw-bold">{{ form.qualifications.label }}</label>
+                            {{ form.qualifications }}
+                            <small class="form-text text-muted">{{ form.qualifications.help_text }}</small>
+                            {% if form.qualifications.errors %}
+                                <div class="text-danger small">{{ form.qualifications.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3">Password</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>{{ form.password1.label }}</label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger small">{{ form.password1.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label>{{ form.password2.label }}</label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small">{{ form.password2.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger w-100 py-3">
+                            <i class="fas fa-paper-plane"></i> Submit Moderator Application
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            <a href="{% url 'core:signup' %}">← Choose different role</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .specialization-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    
+    .form-check {
+        padding: 8px;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+    
+    .form-check:hover {
+        background: #f8f9fa;
+    }
+</style>
+{% endblock %}

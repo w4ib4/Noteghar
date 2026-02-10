@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Registration{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-dark">
+                <div class="card-header bg-dark text-white text-center py-4">
+                    <i class="fas fa-user-cog fa-3x mb-2"></i>
+                    <h3>Administrator Registration</h3>
+                    <p class="mb-0 small">Restricted Access</p>
+                </div>
+                <div class="card-body p-5">
+                    <div class="alert alert-danger mb-4">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Restricted:</strong> Admin registration requires a valid registration key. 
+                        Contact the system administrator if you need access.
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label>{{ form.username.label }}</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small">{{ form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>{{ form.email.label }}</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>{{ form.institution.label }}</label>
+                            {{ form.institution }}
+                            {% if form.institution.errors %}
+                                <div class="text-danger small">{{ form.institution.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>{{ form.admin_key.label }}</label>
+                            {{ form.admin_key }}
+                            <small class="form-text text-muted">{{ form.admin_key.help_text }}</small>
+                            {% if form.admin_key.errors %}
+                                <div class="text-danger small">{{ form.admin_key.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>{{ form.password1.label }}</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="text-danger small">{{ form.password1.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>{{ form.password2.label }}</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="text-danger small">{{ form.password2.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-dark w-100 py-3">
+                            <i class="fas fa-key"></i> Create Admin Account
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            <a href="{% url 'core:signup' %}">← Back to role selection</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
