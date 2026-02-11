@@ -1,10 +1,9 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.db import models
 
 class User(AbstractUser):
     """
-    Custom User model with role-based access
+    Custom User model with role-based access and specializations
     """
     ROLE_CHOICES = (
         ('student', 'Student'),
@@ -14,10 +13,35 @@ class User(AbstractUser):
     
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     phone = models.CharField(max_length=15, blank=True, null=True)
-    institution = models.CharField(max_length=200, blank=True, null=True)
+    
+    #ForeignKey for consistency
+    institution = models.ForeignKey(
+        'notes.Institution',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='users',
+        help_text='User\'s affiliated institution'
+    )
+    
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     is_verified = models.BooleanField(default=False)
+    
+    # Moderator-specific fields
+    specialization_courses = models.ManyToManyField(
+        'notes.Course',
+        blank=True,
+        related_name='specialized_moderators',
+        help_text='Courses this moderator specializes in'
+    )
+    specialization_subjects = models.ManyToManyField(
+        'notes.Subject',
+        blank=True,
+        related_name='specialized_moderators',
+        help_text='Optional: Specific subjects within courses'
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -32,4 +56,40 @@ class User(AbstractUser):
     
     def is_admin_user(self):
         return self.role == 'admin' or self.is_superuser
-
+    
+    def can_moderate_course(self, course):
+        """Check if moderator can handle notes from this course"""
+        if not self.is_moderator():
+            return False
+        if self.is_admin_user():
+            return True
+        return self.specialization_courses.filter(id=course.id).exists()
+    
+    def can_moderate_subject(self, subject):
+        """Check if moderator can handle notes from this subject"""
+        if not self.is_moderator():
+            return False
+        if self.is_admin_user():
+            return True
+        
+        # Check course-level specialization
+        if self.specialization_courses.filter(id=subject.course.id).exists():
+            # If no subject-level specialization, can moderate all subjects in the course
+            if not self.specialization_subjects.exists():
+                return True
+            # If has subject specialization, check specific subject
+            return self.specialization_subjects.filter(id=subject.id).exists()
+        return False
+    
+    def get_specializations_display(self):
+        """Get formatted string of specializations"""
+        courses = self.specialization_courses.all()
+        if courses:
+            return ", ".join([c.name for c in courses])
+        return "No specialization set"
+    
+    def get_pending_assignments_count(self):
+        """Get count of pending notes assigned to this moderator"""
+        if not self.is_moderator():
+            return 0
+        return self.assigned_notes.filter(status='pending').count()
