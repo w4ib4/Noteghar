@@ -4,6 +4,9 @@ from . import views
 app_name = 'moderation'
 
 urlpatterns = [
+
+    
+
     # Main dashboard
     path('', views.moderator_dashboard, name='dashboard'),
     

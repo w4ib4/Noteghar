@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count, Q, Avg
-from notes.models import Note, Report, Rating, Download, ModerationAction
+from notes.models import Note, Report, Rating, Download
+from moderation.models import ModerationAction
 from accounts.models import User
 
 def is_moderator(user):
@@ -253,3 +254,9 @@ def moderation_history(request):
         'total_count': actions.count(),
     }
     return render(request, 'moderation/history.html', context)
+
+def signup_select_view(request):
+    """Role selection page for signup"""
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    return render(request, 'accounts/signup_select.html')
