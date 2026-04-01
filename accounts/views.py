@@ -31,12 +31,12 @@ class StudentSignupView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save(request)
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            # login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(
                 request,
                 'Welcome to NoteGhar! Your student account has been created.'
             )
-            return redirect('core:home')
+            return redirect('accounts:student_login')
         return render(request, self.template_name, {'form': form})
 
 
@@ -54,18 +54,18 @@ class ModeratorSignupView(View):
         return render(request, self.template_name, {'form': form})
     
     def post(self, request):
-        form = self.form_class(request.POST)
+        # ✅ FIXED: Pass both POST and FILES
+        form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(request)
             messages.warning(
                 request,
-                'Your moderator application has been submitted! '
+                '⏳ Your moderator application has been submitted! '
                 'An administrator will review your qualifications and specializations. '
                 'You will receive an email once approved.'
             )
             return redirect('account_login')
         return render(request, self.template_name, {'form': form})
-
 
 class AdminSignupView(View):
     """
@@ -147,3 +147,9 @@ def profile_view(request):
     }
     
     return render(request, 'accounts/profile.html', context)
+
+def signup_select_view(request):
+    """Role selection page for signup"""
+    if request.user.is_authenticated:
+        return redirect('core:home')
+    return render(request, 'accounts/signup_select.html')

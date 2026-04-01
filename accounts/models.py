@@ -3,7 +3,7 @@ from django.db import models
 
 class User(AbstractUser):
     """
-    Custom User model with role-based access and specializations
+    Custom User model with role-based access
     """
     ROLE_CHOICES = (
         ('student', 'Student'),
@@ -14,7 +14,6 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     phone = models.CharField(max_length=15, blank=True, null=True)
     
-    #ForeignKey for consistency
     institution = models.ForeignKey(
         'notes.Institution',
         on_delete=models.SET_NULL,
@@ -39,7 +38,25 @@ class User(AbstractUser):
         'notes.Subject',
         blank=True,
         related_name='specialized_moderators',
-        help_text='Optional: Specific subjects within courses'
+        help_text='Specific subjects within courses'
+    )
+    
+    # ✅ NEW: Qualification proof documents
+    qualification_document = models.FileField(
+        upload_to='qualifications/%Y/%m/',
+        blank=True,
+        null=True,
+        help_text='Upload degree certificate, transcript, or other proof of qualification (PDF, JPG, PNG)'
+    )
+    
+    qualification_verified = models.BooleanField(
+        default=False,
+        help_text='Admin has verified the qualification documents'
+    )
+    
+    qualification_notes = models.TextField(
+        blank=True,
+        help_text='Admin notes about qualification verification'
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -72,12 +89,9 @@ class User(AbstractUser):
         if self.is_admin_user():
             return True
         
-        # Check course-level specialization
         if self.specialization_courses.filter(id=subject.course.id).exists():
-            # If no subject-level specialization, can moderate all subjects in the course
             if not self.specialization_subjects.exists():
                 return True
-            # If has subject specialization, check specific subject
             return self.specialization_subjects.filter(id=subject.id).exists()
         return False
     
