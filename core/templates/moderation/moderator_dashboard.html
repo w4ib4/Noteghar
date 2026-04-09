@@ -11,6 +11,18 @@
         margin-bottom: 30px;
     }
     
+    /* Clickable stat cards */
+    .stat-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .stat-card-link:hover {
+        text-decoration: none;
+        color: inherit;
+    }
+    
     .stat-card {
         background: white;
         border: 2px solid var(--border);
@@ -18,11 +30,13 @@
         padding: 24px;
         height: 100%;
         transition: all 0.3s;
+        cursor: pointer;
     }
     
     .stat-card:hover {
         border-color: #DC2626;
         box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+        transform: translateY(-3px);
     }
     
     .stat-card.urgent {
@@ -136,6 +150,8 @@
         background: #FEF2F2;
         color: #DC2626;
         transform: translateY(-2px);
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
     }
     
     .quick-action-btn i {
@@ -153,6 +169,20 @@
     
     .contributor-item:last-child {
         border-bottom: none;
+    }
+    
+    .alert-mod {
+        background: #FEF3C7;
+        border-left: 4px solid #F59E0B;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .alert-mod a {
+        color: #92400E;
+        text-decoration: underline;
+        font-weight: 600;
     }
 </style>
 {% endblock %}
@@ -179,54 +209,83 @@
 </div>
 
 <div class="container mb-5">
+    <!-- Alert for urgent items -->
+    {% if pending_notes_count > 0 or pending_reports_count > 0 %}
+    <div class="alert-mod">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>⚠️ Action Required:</strong> 
+                {% if pending_notes_count > 0 %}
+                    <a href="{% url 'moderation:pending_notes' %}">{{ pending_notes_count }} pending note(s)</a>
+                {% endif %}
+                {% if pending_reports_count > 0 %}
+                    <a href="{% url 'moderation:pending_reports' %}">{{ pending_reports_count }} pending report(s)</a>
+                {% endif %}
+                waiting for review.
+            </div>
+            <a href="{% url 'moderation:pending_notes' %}" class="btn btn-warning btn-sm">
+                <i class="fas fa-tasks"></i> Start Reviewing
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Alert Stats -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="stat-card urgent">
-                <div class="stat-icon red">
-                    <i class="fas fa-exclamation-triangle"></i>
+            <a href="{% url 'moderation:pending_notes' %}" class="stat-card-link">
+                <div class="stat-card urgent">
+                    <div class="stat-icon red">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-value">{{ pending_notes_count }}</div>
+                    <div class="stat-label">Pending Notes</div>
+                    {% if needs_attention > 0 %}
+                        <small class="text-danger">
+                            <i class="fas fa-clock"></i> {{ needs_attention }} urgent (>48h)
+                        </small>
+                    {% endif %}
                 </div>
-                <div class="stat-value">{{ pending_notes_count }}</div>
-                <div class="stat-label">Pending Notes</div>
-                {% if needs_attention > 0 %}
-                    <small class="text-danger">
-                        <i class="fas fa-clock"></i> {{ needs_attention }} urgent (>48h)
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'moderation:pending_reports' %}" class="stat-card-link">
+                <div class="stat-card warning">
+                    <div class="stat-icon amber">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="stat-value">{{ pending_reports_count }}</div>
+                    <div class="stat-label">Pending Reports</div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="{% url 'moderation:history' %}?moderator={{ user.id }}" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-value">{{ approval_rate }}%</div>
+                    <div class="stat-label">Approval Rate</div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3">
+            <a href="/admin/notes/note/" class="stat-card-link">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-value">{{ total_notes }}</div>
+                    <div class="stat-label">Total Notes</div>
+                    <small class="text-muted">
+                        {{ approved_notes }} approved, {{ rejected_notes }} rejected
                     </small>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="stat-card warning">
-                <div class="stat-icon amber">
-                    <i class="fas fa-flag"></i>
                 </div>
-                <div class="stat-value">{{ pending_reports_count }}</div>
-                <div class="stat-label">Pending Reports</div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-value">{{ approval_rate }}%</div>
-                <div class="stat-label">Approval Rate</div>
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="stat-value">{{ total_notes }}</div>
-                <div class="stat-label">Total Notes</div>
-                <small class="text-muted">
-                    {{ approved_notes }} approved, {{ rejected_notes }} rejected
-                </small>
-            </div>
+            </a>
         </div>
     </div>
     
