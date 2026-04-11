@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Complete Sign Up - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow">
+
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <!-- Google logo -->
+                    <svg width="40" height="40" viewBox="0 0 24 24" class="mb-2">
+                        <path fill="#ffffff" opacity="0.9" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#ffffff" opacity="0.9" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#ffffff" opacity="0.9" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                        <path fill="#ffffff" opacity="0.9" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <h4 class="mb-0">Almost There!</h4>
+                    <p class="mb-0 mt-1" style="opacity: 0.9; font-size: 0.9rem;">
+                        Complete your NoteGhar account
+                    </p>
+                </div>
+
+                <div class="card-body p-5">
+
+                    <!-- Google account info banner -->
+                    {% if sociallogin.account.extra_data.email %}
+                    <div class="google-account-banner mb-4">
+                        <div class="google-avatar">
+                            {% if sociallogin.account.extra_data.picture %}
+                                <img src="{{ sociallogin.account.extra_data.picture }}"
+                                     alt="Profile" class="rounded-circle"
+                                     width="40" height="40">
+                            {% else %}
+                                <div class="avatar-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="google-account-info">
+                            <div class="google-account-name">
+                                {{ sociallogin.account.extra_data.name|default:"Google User" }}
+                            </div>
+                            <div class="google-account-email">
+                                {{ sociallogin.account.extra_data.email }}
+                            </div>
+                        </div>
+                        <div class="google-verified-badge">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <p class="text-muted text-center mb-4" style="font-size: 0.9rem;">
+                        Just choose a username to finish setting up your student account.
+                    </p>
+
+                    <!-- Signup form -->
+                    <form method="post" action="{% url 'socialaccount_signup' %}">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                            <div class="alert alert-danger mb-3">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Email (pre-filled, read-only) -->
+                        {% if form.email %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-1 text-muted"></i> Email
+                            </label>
+                            <input type="email"
+                                   class="form-control bg-light"
+                                   value="{{ form.email.value }}"
+                                   readonly>
+                            <input type="hidden" name="email" value="{{ form.email.value }}">
+                        </div>
+                        {% endif %}
+
+                        <!-- Username -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold" for="{{ form.username.id_for_label }}">
+                                <i class="fas fa-at me-1 text-muted"></i> Choose a Username
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   name="username"
+                                   id="{{ form.username.id_for_label }}"
+                                   class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                   placeholder="e.g. srijan_tamang"
+                                   value="{{ form.username.value|default:'' }}"
+                                   autofocus
+                                   required>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">{{ form.username.errors|join:", " }}</div>
+                            {% endif %}
+                            <div class="form-text text-muted">
+                                Letters, digits, and @/./+/-/_ only.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-check me-1"></i> Create My Account
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted small mb-0">
+                            Not you? <a href="{% url 'account_logout' %}" class="text-primary">Sign out</a>
+                            and try a different account.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .google-account-banner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+
+    .google-avatar img,
+    .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .avatar-placeholder {
+        background: #E2E8F0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94A3B8;
+        font-size: 1.1rem;
+    }
+
+    .google-account-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .google-account-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #1E293B;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .google-account-email {
+        font-size: 0.8rem;
+        color: #64748B;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .google-verified-badge {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .form-control:focus {
+        border-color: #2563EB;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+</style>
+{% endblock %}
