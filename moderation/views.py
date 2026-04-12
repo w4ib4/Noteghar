@@ -1,7 +1,3 @@
-# ==========================================
-# CREATE: moderation/views.py (if doesn't exist, or add to notes/views.py)
-# ==========================================
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -21,14 +17,29 @@ def moderator_dashboard(request):
     """
     Enhanced moderator dashboard with comprehensive statistics
     """
-    # Pending content counts
-    pending_notes = Note.objects.filter(status='pending')
+    # Pending content counts — scoped by specialization for moderators
+    user = request.user
+    if user.is_superuser or user.role == 'admin':
+        pending_notes = Note.objects.filter(status='pending')
+        recent_notes = Note.objects.filter(status='pending').select_related(
+            'uploaded_by', 'subject', 'course', 'semester'
+        ).order_by('-created_at')[:10]
+    else:
+        # Show only notes assigned to this moderator
+        pending_notes = Note.objects.filter(status='pending', assigned_moderator=user)
+        # Fallback to specialization match if nothing assigned
+        if not pending_notes.exists():
+            spec_subjects = user.specialization_subjects.all()
+            spec_courses = user.specialization_courses.all()
+            if spec_subjects.exists():
+                pending_notes = Note.objects.filter(status='pending', subject__in=spec_subjects)
+            elif spec_courses.exists():
+                pending_notes = Note.objects.filter(status='pending', course__in=spec_courses)
+        recent_notes = pending_notes.select_related(
+            'uploaded_by', 'subject', 'course', 'semester'
+        ).order_by('-created_at')[:10]
+
     pending_reports = Report.objects.filter(status='pending')
-    
-    # Recent activity
-    recent_notes = Note.objects.filter(status='pending').select_related(
-        'uploaded_by', 'subject', 'course', 'semester'
-    ).order_by('-created_at')[:10]
     
     recent_reports = Report.objects.filter(
         status='pending'
@@ -102,16 +113,48 @@ def moderator_dashboard(request):
 
 @user_passes_test(is_moderator)
 def pending_notes_list(request):
-    """List all pending notes for review"""
-    notes = Note.objects.filter(status='pending').select_related(
-        'uploaded_by', 'subject', 'course', 'semester'
-    ).order_by('-created_at')
-    
-    # Filter by course if specified
+    """
+    List pending notes for review, filtered by the moderator's specialization.
+    Admins and superusers see all pending notes.
+    Moderators only see notes assigned to them (matched by specialization on upload).
+    If a moderator has no assigned notes, fall back to showing notes matching
+    their specialization_courses so the queue is never unexpectedly empty.
+    """
+    user = request.user
+
+    # Admins / superusers see everything
+    if user.is_superuser or user.role == 'admin':
+        notes = Note.objects.filter(status='pending').select_related(
+            'uploaded_by', 'subject', 'course', 'semester'
+        ).order_by('-created_at')
+    else:
+        # Primary: show notes explicitly assigned to this moderator
+        notes = Note.objects.filter(
+            status='pending',
+            assigned_moderator=user
+        ).select_related('uploaded_by', 'subject', 'course', 'semester').order_by('-created_at')
+
+        # Fallback: if nothing is assigned yet, show notes matching their course specializations
+        if not notes.exists():
+            specialization_courses = user.specialization_courses.all()
+            specialization_subjects = user.specialization_subjects.all()
+
+            if specialization_subjects.exists():
+                notes = Note.objects.filter(
+                    status='pending',
+                    subject__in=specialization_subjects
+                ).select_related('uploaded_by', 'subject', 'course', 'semester').order_by('-created_at')
+            elif specialization_courses.exists():
+                notes = Note.objects.filter(
+                    status='pending',
+                    course__in=specialization_courses
+                ).select_related('uploaded_by', 'subject', 'course', 'semester').order_by('-created_at')
+
+    # Optional manual course filter (for admins browsing)
     course_id = request.GET.get('course')
     if course_id:
         notes = notes.filter(course_id=course_id)
-    
+
     context = {
         'notes': notes,
         'total_count': notes.count(),
