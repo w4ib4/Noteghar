@@ -2,22 +2,115 @@
 
 {% block title %}{{ note.title }} - NoteGhar{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Star Rating Styles */
+    .star-rating-display .stars i {
+        font-size: 1.2rem;
+        color: #FFC107;
+    }
+    
+    .interactive-stars {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+    
+    .interactive-stars i {
+        font-size: 2.5rem;
+        cursor: pointer;
+        color: #E5E7EB;
+        transition: all 0.2s;
+    }
+    
+    .interactive-stars i:hover {
+        transform: scale(1.1);
+    }
+    
+    .interactive-stars i.fas {
+        color: #FFC107;
+    }
+    
+    .rating-label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #D97706;
+        min-width: 100px;
+    }
+    
+    .stats-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    .review-card {
+        border-left: 4px solid #FFC107;
+        transition: all 0.2s;
+    }
+    
+    .review-card:hover {
+        background-color: #FFFBEB;
+        transform: translateX(5px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
+    <!-- Status Alert for Pending/Rejected Notes -->
+    {% if note.status != 'approved' %}
+    <div class="alert alert-{% if note.status == 'pending' %}warning{% else %}danger{% endif %} mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-info-circle"></i>
+                <strong>Note Status:</strong> 
+                {% if note.status == 'pending' %}
+                    This note is pending moderation review.
+                {% elif note.status == 'rejected' %}
+                    This note has been rejected.
+                {% endif %}
+            </div>
+            
+            {% if user.is_staff %}
+            <!-- Moderator Quick Actions -->
+            <div class="btn-group">
+                <a href="{% url 'moderation:approve_note' note.pk %}?confirm=1" 
+                   class="btn btn-success btn-sm"
+                   onclick="return confirm('Approve this note?')">
+                    <i class="fas fa-check"></i> Approve
+                </a>
+                <a href="{% url 'moderation:reject_note' note.pk %}" 
+                   class="btn btn-danger btn-sm">
+                    <i class="fas fa-times"></i> Reject
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-md-8">
+            <!-- Main Note Card -->
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h2>{{ note.title }}</h2>
-                        <span class="badge bg-primary fs-6">{{ note.get_file_extension }}</span>
+                        <div>
+                            <span class="badge bg-primary fs-6">{{ note.get_file_extension }}</span>
+                            {% if note.status == 'pending' %}
+                                <span class="badge bg-warning text-dark fs-6 ms-1">PENDING</span>
+                            {% elif note.status == 'rejected' %}
+                                <span class="badge bg-danger fs-6 ms-1">REJECTED</span>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <!-- Rating Display -->
-                    <div class="mb-3">
+                    <div class="mb-3 star-rating-display">
                         <div class="d-flex align-items-center">
                             {% if average_rating > 0 %}
-                                <div class="text-warning me-2">
+                                <div class="stars me-2">
                                     {% for i in "12345" %}
                                         {% if forloop.counter <= average_rating %}
                                             <i class="fas fa-star"></i>
@@ -28,48 +121,55 @@
                                         {% endif %}
                                     {% endfor %}
                                 </div>
+                                <span class="fw-bold me-2">{{ average_rating|floatformat:1 }}</span>
                                 <span class="text-muted">
-                                    {{ average_rating }}/5 ({{ rating_count }} rating{{ rating_count|pluralize }})
+                                    ({{ rating_count }} rating{{ rating_count|pluralize }})
                                 </span>
                             {% else %}
-                                <span class="text-muted">No ratings yet</span>
+                                <span class="text-muted">No ratings yet - Be the first to rate!</span>
                             {% endif %}
                         </div>
                     </div>
 
+                    <!-- Badges -->
                     <div class="mb-4">
                         <span class="badge bg-info me-2">{{ note.course.code }}</span>
                         <span class="badge bg-success me-2">Semester {{ note.semester.number }}</span>
                         <span class="badge bg-warning text-dark">{{ note.subject.code }}</span>
                     </div>
 
+                    <!-- Description -->
                     <h5>Description</h5>
                     <p class="text-muted">{{ note.description }}</p>
 
+                    <!-- Tags (ManyToMany) -->
                     {% if tag_list %}
                     <div class="mb-3">
                         <h6>Tags:</h6>
                         {% for tag in tag_list %}
-                            <span class="badge bg-secondary me-1">{{ tag }}</span>
+                            <a href="{% url 'notes:tag_browse' tag.slug %}" class="badge bg-secondary me-1 text-decoration-none">
+                                {{ tag.name }}
+                            </a>
                         {% endfor %}
                     </div>
                     {% endif %}
 
                     <hr>
 
+                    <!-- Stats -->
                     <div class="row text-center">
                         <div class="col-md-4">
-                            <i class="fas fa-download fa-2x text-primary"></i>
+                            <i class="fas fa-download stats-icon text-primary"></i>
                             <p class="mb-0"><strong>{{ note.download_count }}</strong></p>
                             <small class="text-muted">Downloads</small>
                         </div>
                         <div class="col-md-4">
-                            <i class="fas fa-eye fa-2x text-success"></i>
+                            <i class="fas fa-eye stats-icon text-success"></i>
                             <p class="mb-0"><strong>{{ note.view_count }}</strong></p>
                             <small class="text-muted">Views</small>
                         </div>
                         <div class="col-md-4">
-                            <i class="fas fa-file fa-2x text-info"></i>
+                            <i class="fas fa-file stats-icon text-info"></i>
                             <p class="mb-0"><strong>{{ note.get_file_size_mb }} MB</strong></p>
                             <small class="text-muted">File Size</small>
                         </div>
@@ -77,6 +177,7 @@
 
                     <hr>
 
+                    <!-- Download & Bookmark Buttons -->
                     {% if user.is_authenticated %}
                         <a href="{% url 'notes:download' note.pk %}" class="btn btn-primary btn-lg w-100 mb-2">
                             <i class="fas fa-download"></i> Download Note
@@ -86,6 +187,18 @@
                                 <i class="fas fa-check-circle"></i> You've downloaded this note
                             </p>
                         {% endif %}
+                        
+                        <!-- Bookmark Button -->
+                        <form method="post" action="{% url 'notes:toggle_bookmark' note.pk %}" class="d-inline w-100">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-warning w-100 mt-2">
+                                {% if note.is_bookmarked %}
+                                    <i class="fas fa-bookmark"></i> Remove from Bookmarks
+                                {% else %}
+                                    <i class="far fa-bookmark"></i> Add to Bookmarks
+                                {% endif %}
+                            </button>
+                        </form>
                     {% else %}
                         <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary btn-lg w-100">
                             <i class="fas fa-sign-in-alt"></i> Login to Download
@@ -93,77 +206,155 @@
                     {% endif %}
 
                     <!-- Report Button -->
-                    {% if user.is_authenticated and user != note.uploaded_by %}
-                        <a href="{% url 'notes:report' note.pk %}" class="btn btn-outline-danger btn-sm w-100 mt-2">
+                    {% if user.is_authenticated %}
+                        {% if user.id != note.uploaded_by.id %}
+                        <button type="button" class="btn btn-outline-danger btn-sm w-100 mt-2" data-bs-toggle="modal" data-bs-target="#reportModal">
                             <i class="fas fa-flag"></i> Report This Note
-                        </a>
+                        </button>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
 
             <!-- Rating Section -->
             {% if user.is_authenticated %}
-            <div class="card shadow-sm mt-4">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0"><i class="fas fa-star"></i> Rate This Note</h5>
-                </div>
-                <div class="card-body">
-                    {% if user_rating %}
-                        <div class="alert alert-info">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>Your Rating: {{ user_rating.rating }}/5</strong>
-                                    {% if user_rating.review %}
-                                        <p class="mb-0 mt-2">{{ user_rating.review }}</p>
-                                    {% endif %}
-                                </div>
-                                <form method="post" action="{% url 'notes:delete_rating' user_rating.pk %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete your rating?')">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
+                {% if note.status == 'approved' %}
+                    {% if user.id != note.uploaded_by.id %}
+                    <div class="card shadow-sm mt-4">
+                        <div class="card-header bg-warning">
+                            <h5 class="mb-0">
+                                <i class="fas fa-star"></i> 
+                                {% if user_rating %}Update Your Rating{% else %}Rate This Note{% endif %}
+                            </h5>
                         </div>
-                        <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#ratingForm">
-                            Update Rating
-                        </button>
-                        <div class="collapse mt-3" id="ratingForm">
-                    {% else %}
-                        <div id="ratingForm">
-                    {% endif %}
-                            <form method="post" action="{% url 'notes:rate' note.pk %}">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    {{ rating_form.rating.label_tag }}
-                                    {{ rating_form.rating }}
+                        <div class="card-body">
+                            {% if user_rating %}
+                                <div class="alert alert-info">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>Your Current Rating: </strong>
+                                            <span class="text-warning">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= user_rating.rating %}
+                                                        <i class="fas fa-star"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                            ({{ user_rating.rating }}/5)
+                                            {% if user_rating.review %}
+                                                <p class="mb-0 mt-2"><em>"{{ user_rating.review }}"</em></p>
+                                            {% endif %}
+                                        </div>
+                                        <form method="post" action="{% url 'notes:delete_rating' user_rating.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete your rating?')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    {{ rating_form.review.label_tag }}
-                                    {{ rating_form.review }}
-                                </div>
-                                <button type="submit" class="btn btn-warning">
-                                    <i class="fas fa-star"></i> Submit Rating
+                                <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#ratingForm">
+                                    <i class="fas fa-edit"></i> Update Rating
                                 </button>
-                            </form>
+                                <div class="collapse" id="ratingForm">
+                            {% else %}
+                                <div id="ratingForm">
+                            {% endif %}
+                            
+                                    <form method="post" action="{% url 'notes:rate' note.pk %}" id="ratingFormElement">
+                                        {% csrf_token %}
+                                        
+                                        <!-- Interactive Star Rating -->
+                                        <div class="mb-4">
+                                            <label class="form-label fw-bold">Select Your Rating</label>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <input type="hidden" name="rating" id="ratingValue" value="{% if user_rating %}{{ user_rating.rating }}{% endif %}" required>
+                                                <div class="interactive-stars">
+                                                    <i class="far fa-star" data-rating="1"></i>
+                                                    <i class="far fa-star" data-rating="2"></i>
+                                                    <i class="far fa-star" data-rating="3"></i>
+                                                    <i class="far fa-star" data-rating="4"></i>
+                                                    <i class="far fa-star" data-rating="5"></i>
+                                                </div>
+                                                <span class="rating-label" id="ratingLabel">
+                                                    {% if user_rating %}
+                                                        {% if user_rating.rating == 5 %}Excellent
+                                                        {% elif user_rating.rating == 4 %}Very Good
+                                                        {% elif user_rating.rating == 3 %}Good
+                                                        {% elif user_rating.rating == 2 %}Fair
+                                                        {% else %}Poor
+                                                        {% endif %}
+                                                    {% else %}
+                                                        Select a rating
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">Click on the stars to rate</small>
+                                        </div>
+                                        
+                                        <!-- Review Text -->
+                                        <div class="mb-3">
+                                            <label for="id_review" class="form-label fw-bold">Your Review (Optional)</label>
+                                            <textarea name="review" 
+                                                      id="id_review" 
+                                                      class="form-control" 
+                                                      rows="4" 
+                                                      placeholder="Share your thoughts about this note...">{% if user_rating %}{{ user_rating.review }}{% endif %}</textarea>
+                                        </div>
+                                        
+                                        <!-- Submit Button -->
+                                        <button type="submit" class="btn btn-warning btn-lg w-100">
+                                            <i class="fas fa-star"></i> 
+                                            {% if user_rating %}Update Your Rating{% else %}Submit Rating{% endif %}
+                                        </button>
+                                    </form>
+                                </div>
                         </div>
+                    </div>
+                    {% else %}
+                    <!-- User's Own Note -->
+                    <div class="card shadow-sm mt-4 border-info">
+                        <div class="card-body text-center py-4">
+                            <i class="fas fa-info-circle fa-3x text-info mb-3"></i>
+                            <h5>This is Your Note</h5>
+                            <p class="text-muted mb-0">You cannot rate your own uploads.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                <!-- Login to Rate -->
+                <div class="card shadow-sm mt-4 border-warning">
+                    <div class="card-body text-center py-4">
+                        <i class="fas fa-lock fa-3x text-warning mb-3"></i>
+                        <h5>Login to Rate This Note</h5>
+                        <p class="text-muted">Share your experience and help other students!</p>
+                        <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login to Rate
+                        </a>
+                    </div>
                 </div>
-            </div>
             {% endif %}
 
             <!-- Reviews/Ratings List -->
             {% if ratings %}
             <div class="card shadow-sm mt-4">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-comments"></i> Reviews ({{ ratings.count }})</h5>
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments"></i> Reviews ({{ ratings.count }})
+                    </h5>
                 </div>
                 <div class="card-body">
                     {% for rating in ratings %}
-                    <div class="border-bottom pb-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-start">
+                    <div class="review-card p-3 mb-3 rounded">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
-                                <strong>{{ rating.user.username }}</strong>
-                                <div class="text-warning">
+                                <strong class="text-primary">
+                                    <i class="fas fa-user-circle"></i> {{ rating.user.username }}
+                                </strong>
+                                <div class="text-warning mt-1">
                                     {% for i in "12345" %}
                                         {% if forloop.counter <= rating.rating %}
                                             <i class="fas fa-star"></i>
@@ -171,52 +362,246 @@
                                             <i class="far fa-star"></i>
                                         {% endif %}
                                     {% endfor %}
+                                    <span class="text-dark ms-2">({{ rating.rating }}/5)</span>
                                 </div>
                             </div>
-                            <small class="text-muted">{{ rating.created_at|date:"M d, Y" }}</small>
+                            <small class="text-muted">
+                                <i class="far fa-clock"></i> {{ rating.created_at|timesince }} ago
+                            </small>
                         </div>
                         {% if rating.review %}
-                            <p class="mt-2 mb-0">{{ rating.review }}</p>
+                            <p class="mb-2 ps-3 border-start border-warning border-3">{{ rating.review }}</p>
+                        {% endif %}
+                        
+                        <!-- Helpful Button -->
+                        {% if user.is_authenticated %}
+                            {% if user.id != rating.user.id %}
+                            <div class="mt-2">
+                                <form method="post" action="{% url 'notes:mark_helpful' rating.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                        <i class="far fa-thumbs-up"></i>
+                                        Helpful ({{ rating.get_helpful_count }})
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
                         {% endif %}
                     </div>
                     {% endfor %}
                 </div>
             </div>
+            {% else %}
+                {% if note.status == 'approved' %}
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body text-center py-5">
+                        <i class="far fa-comments fa-3x text-muted mb-3"></i>
+                        <h5>No Reviews Yet</h5>
+                        <p class="text-muted">Be the first to rate this note and help other students!</p>
+                    </div>
+                </div>
+                {% endif %}
             {% endif %}
         </div>
 
+        <!-- Sidebar -->
         <div class="col-md-4">
+            <!-- Details Card -->
             <div class="card shadow-sm mb-3">
-                <div class="card-header">
+                <div class="card-header bg-primary text-white">
                     <h5 class="mb-0"><i class="fas fa-info-circle"></i> Details</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Course:</strong><br>{{ note.course.name }}</p>
-                    <p><strong>Subject:</strong><br>{{ note.subject.name }}</p>
-                    <p><strong>Semester:</strong><br>{{ note.semester.name }}</p>
-                    <p><strong>Uploaded by:</strong><br>{{ note.uploaded_by.username }}</p>
-                    <p><strong>Uploaded on:</strong><br>{{ note.created_at|date:"M d, Y" }}</p>
+                    <p class="mb-2">
+                        <strong>Course:</strong><br>
+                        <span class="text-muted">{{ note.course.name }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <strong>Subject:</strong><br>
+                        <span class="text-muted">{{ note.subject.name }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <strong>Semester:</strong><br>
+                        <span class="text-muted">{{ note.semester.name }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <strong>Uploaded by:</strong><br>
+                        <span class="text-muted">{{ note.uploaded_by.username }}</span>
+                    </p>
+                    <p class="mb-0">
+                        <strong>Uploaded on:</strong><br>
+                        <span class="text-muted">{{ note.created_at|date:"M d, Y" }}</span>
+                    </p>
                 </div>
             </div>
 
+            <!-- Share Card -->
             <div class="card shadow-sm">
-                <div class="card-header">
+                <div class="card-header bg-success text-white">
                     <h5 class="mb-0"><i class="fas fa-share-alt"></i> Share</h5>
                 </div>
                 <div class="card-body text-center">
-                    <button class="btn btn-sm btn-outline-primary" onclick="copyLink()">
+                    <button class="btn btn-outline-primary w-100" onclick="copyLink()">
                         <i class="fas fa-copy"></i> Copy Link
                     </button>
+                    <small class="text-muted d-block mt-2">Share this note with your friends</small>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Report Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-flag"></i> Report This Note
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'notes:report' note.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Important:</strong> False reports may result in account suspension.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Reason for Report</label>
+                        <select name="reason" class="form-control" required>
+                            <option value="">Select a reason...</option>
+                            <option value="spam">Spam or Misleading</option>
+                            <option value="inappropriate">Inappropriate Content</option>
+                            <option value="copyright">Copyright Violation</option>
+                            <option value="low_quality">Low Quality or Incorrect</option>
+                            <option value="wrong_category">Wrong Category/Subject</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" 
+                                  class="form-control" 
+                                  rows="4" 
+                                  placeholder="Please provide details about why you are reporting this note..."
+                                  required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-flag"></i> Submit Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
+// Copy Link Function
 function copyLink() {
-    navigator.clipboard.writeText(window.location.href);
-    alert('Link copied to clipboard!');
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-outline-primary');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-primary');
+        }, 2000);
+    }).catch(function(err) {
+        alert('Failed to copy link');
+    });
 }
+
+// Interactive Star Rating
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.interactive-stars i');
+    const ratingValue = document.getElementById('ratingValue');
+    const ratingLabel = document.getElementById('ratingLabel');
+    
+    if (!stars.length) return;
+    
+    const labels = {
+        1: 'Poor',
+        2: 'Fair',
+        3: 'Good',
+        4: 'Very Good',
+        5: 'Excellent'
+    };
+    
+    const currentRating = parseInt(ratingValue.value) || 0;
+    if (currentRating > 0) {
+        setRating(currentRating);
+    }
+    
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
+            highlightStars(rating);
+            ratingLabel.textContent = labels[rating];
+        });
+        
+        star.addEventListener('click', function() {
+            const rating = parseInt(this.dataset.rating);
+            ratingValue.value = rating;
+            setRating(rating);
+            ratingLabel.textContent = labels[rating];
+        });
+    });
+    
+    const starsContainer = document.querySelector('.interactive-stars');
+    if (starsContainer) {
+        starsContainer.addEventListener('mouseleave', function() {
+            const currentRating = parseInt(ratingValue.value) || 0;
+            setRating(currentRating);
+            if (currentRating > 0) {
+                ratingLabel.textContent = labels[currentRating];
+            } else {
+                ratingLabel.textContent = 'Select a rating';
+            }
+        });
+    }
+    
+    function highlightStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.remove('far');
+                star.classList.add('fas');
+            } else {
+                star.classList.remove('fas');
+                star.classList.add('far');
+            }
+        });
+    }
+    
+    function setRating(rating) {
+        highlightStars(rating);
+    }
+    
+    const form = document.getElementById('ratingFormElement');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!ratingValue.value) {
+                e.preventDefault();
+                alert('Please select a rating before submitting!');
+                ratingLabel.textContent = 'Please select a rating!';
+                ratingLabel.style.color = '#DC2626';
+                setTimeout(function() {
+                    ratingLabel.textContent = 'Select a rating';
+                    ratingLabel.style.color = '#D97706';
+                }, 2000);
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

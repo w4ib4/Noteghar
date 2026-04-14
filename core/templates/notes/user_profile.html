@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ profile_user.username }}'s Profile</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <p><strong>Level:</strong> {{ profile.level }}</p>
+            <p><strong>Total Points:</strong> {{ profile.total_points }}</p>
+            <p><strong>Total Downloads Received:</strong> {{ total_downloads_received }}</p>
+            <p><strong>Average Rating:</strong> {{ avg_rating }}</p>
+        </div>
+    </div>
+
+    <h3>Earned Badges</h3>
+    {% if earned_badges %}
+        <div class="row">
+            {% for user_badge in earned_badges %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>{{ user_badge.badge.icon }} {{ user_badge.badge.name }}</h5>
+                            <p>{{ user_badge.badge.description }}</p>
+                            <small>Earned on {{ user_badge.earned_at }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No badges earned yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

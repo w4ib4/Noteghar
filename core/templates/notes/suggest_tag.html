@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+ 
+{% block title %}Suggest Tag - NoteGhar{% endblock %}
+ 
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-lightbulb"></i> Suggest New Tag
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Suggest a new tag to help categorize notes. Your suggestion will be reviewed by moderators.
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Tag Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="tag_name" 
+                                   class="form-control" 
+                                   placeholder="e.g., exam-tips, visual-notes"
+                                   required
+                                   maxlength="50">
+                            <small class="text-muted">Use lowercase and hyphens (e.g., my-tag-name)</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Description <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="description" 
+                                      class="form-control" 
+                                      rows="3" 
+                                      placeholder="Describe what this tag is for..."
+                                      required></textarea>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-clock"></i>
+                            <strong>Note:</strong> Your tag will be available after moderator approval.
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Suggestion
+                            </button>
+                            <a href="{% url 'notes:tag_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+ 

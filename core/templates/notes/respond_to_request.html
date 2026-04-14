@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+ 
+{% block title %}Respond to Request - NoteGhar{% endblock %}
+ 
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-paper-plane"></i> Respond to Request
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Request Info -->
+                    <div class="alert alert-info">
+                        <h5>{{ request.topic }}</h5>
+                        <p class="mb-0">{{ request.description }}</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Select Your Note <span class="text-danger">*</span>
+                            </label>
+                            <select name="note" class="form-control" required>
+                                <option value="">Choose a note to share...</option>
+                                {% for note in my_notes %}
+                                    <option value="{{ note.id }}">
+                                        {{ note.title }} ({{ note.subject.name }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if not my_notes %}
+                            <small class="text-danger">
+                                You don't have any approved notes for this course. 
+                                <a href="{% url 'notes:upload' %}">Upload a note</a> first.
+                            </small>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Message (Optional)
+                            </label>
+                            <textarea name="message" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="Add a message to the requester (optional)"></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg" {% if not my_notes %}disabled{% endif %}>
+                                <i class="fas fa-paper-plane"></i> Submit Response
+                            </button>
+                            <a href="{% url 'notes:request_detail' request.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

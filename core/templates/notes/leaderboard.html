@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">
+        <i class="fas fa-trophy text-warning"></i> Leaderboard
+    </h2>
+    
+    <div class="row g-4">
+        <!-- All-Time Top Contributors -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">
+                        <i class="fas fa-crown"></i> 🏆 All-Time Top Contributors
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for profile in all_time %}
+                        <a href="{% url 'notes:user_profile' profile.user.username %}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-{{ forloop.counter|default:'secondary' }} me-2">
+                                        #{{ forloop.counter }}
+                                    </span>
+                                    <strong>{{ profile.user.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ profile.get_level_name }}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary fs-6">
+                                        {{ profile.total_points }} pts
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ profile.notes_uploaded }} notes
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <p class="text-center text-muted py-3">No data yet</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monthly Top Contributors -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt"></i> 📈 Monthly Top Contributors
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for entry in monthly_users %}
+                        <a href="{% url 'notes:user_profile' entry.profile.user.username %}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-primary me-2">#{{ forloop.counter }}</span>
+                                    <strong>{{ entry.profile.user.username }}</strong>
+                                </div>
+                                <span class="badge bg-success">
+                                    {{ entry.monthly_points }} pts this month
+                                </span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <p class="text-center text-muted py-3">No activity this month</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Highest Rated Contributors -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star"></i> ⭐ Highest Rated Contributors
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for profile in highest_rated %}
+                        <a href="{% url 'notes:user_profile' profile.user.username %}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-success me-2">#{{ forloop.counter }}</span>
+                                    <strong>{{ profile.user.username }}</strong>
+                                </div>
+                                <div class="text-warning">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= profile.avg_rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="text-dark ms-1">{{ profile.avg_rating|floatformat:1 }}</span>
+                                </div>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <p class="text-center text-muted py-3">No rated notes yet</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Trending This Week -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-fire"></i> 🔥 Trending This Week
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for entry in trending_users %}
+                        <a href="{% url 'notes:user_profile' entry.profile.user.username %}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-danger me-2">#{{ forloop.counter }}</span>
+                                    <strong>{{ entry.profile.user.username }}</strong>
+                                </div>
+                                <span class="badge bg-warning text-dark">
+                                    {{ entry.weekly_points }} pts this week
+                                </span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <p class="text-center text-muted py-3">No activity this week</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Most Helpful Reviewers -->
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heart"></i> 💎 Most Helpful Reviewers
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for profile in helpful_reviewers %}
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'notes:user_profile' profile.user.username %}" 
+                               class="text-decoration-none">
+                                <div class="card border-info h-100">
+                                    <div class="card-body text-center">
+                                        <div class="mb-2">
+                                            <span class="badge bg-info fs-4">#{{ forloop.counter }}</span>
+                                        </div>
+                                        <h6>{{ profile.user.username }}</h6>
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-thumbs-up"></i> 
+                                            {{ profile.helpful_count }} helpful marks
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <p class="text-center text-muted py-3">No helpful reviews yet</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+    transition: all 0.2s;
+}
+</style>
+{% endblock %}

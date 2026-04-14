@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Note Request - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle"></i> Create Note Request
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Request notes from the community!</strong> 
+                        Your request will be visible to all users who can help you by uploading matching notes.
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Course <span class="text-danger">*</span>
+                            </label>
+                            <select name="course" id="id_course" class="form-control" required>
+                                <option value="">Select Course</option>
+                                {% for course in courses %}
+                                    <option value="{{ course.id }}">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Semester <span class="text-danger">*</span>
+                            </label>
+                            <select name="semester" id="id_semester" class="form-control" required>
+                                <option value="">Select Semester</option>
+                                {% for semester in semesters %}
+                                    <option value="{{ semester.id }}">{{ semester.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Subject (Optional)
+                            </label>
+                            <select name="subject" id="id_subject" class="form-control">
+                                <option value="">Any Subject</option>
+                            </select>
+                            <small class="text-muted">Select course and semester first to load subjects</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Topic <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="topic" 
+                                   class="form-control" 
+                                   placeholder="e.g., Data Structures - Trees and Graphs"
+                                   required
+                                   maxlength="200">
+                            <small class="text-muted">Be specific about what you need</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                Description <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="description" 
+                                      class="form-control" 
+                                      rows="5" 
+                                      placeholder="Describe in detail what kind of notes you're looking for. Include specific topics, chapters, or areas you need help with."
+                                      required></textarea>
+                            <small class="text-muted">Provide details to help others understand your needs</small>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Note:</strong> Your request will expire after 30 days if not fulfilled.
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Request
+                            </button>
+                            <a href="{% url 'notes:request_board' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Dynamic subject loading
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSelect = document.getElementById('id_course');
+    const semesterSelect = document.getElementById('id_semester');
+    const subjectSelect = document.getElementById('id_subject');
+    
+    function loadSubjects() {
+        const courseId = courseSelect.value;
+        const semesterId = semesterSelect.value;
+        
+        if (courseId && semesterId) {
+            fetch(`/notes/ajax/load-subjects/?course_id=${courseId}&semester_id=${semesterId}`)
+                .then(response => response.json())
+                .then(data => {
+                    subjectSelect.innerHTML = '<option value="">Any Subject</option>';
+                    data.subjects.forEach(subject => {
+                        const option = document.createElement('option');
+                        option.value = subject.id;
+                        option.textContent = `${subject.code} - ${subject.name}`;
+                        subjectSelect.appendChild(option);
+                    });
+                });
+        } else {
+            subjectSelect.innerHTML = '<option value="">Select course and semester first</option>';
+        }
+    }
+    
+    courseSelect.addEventListener('change', loadSubjects);
+    semesterSelect.addEventListener('change', loadSubjects);
+});
+</script>
+{% endblock %}

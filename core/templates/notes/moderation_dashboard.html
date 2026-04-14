@@ -52,7 +52,7 @@
                                 <td>{{ note.subject.code }}</td>
                                 <td>{{ note.created_at|date:"M d, Y" }}</td>
                                 <td>
-                                    <a href="{% url 'notes:detail' note.pk %}" class="btn btn-sm btn-info" target="_blank">
+                                    <a href="{% url 'notes:detail' note.pk %}" class="btn btn-sm btn-outline-primary" target="_blank">
                                         <i class="fas fa-eye"></i> View
                                     </a>
                                     <a href="{% url 'notes:approve_note' note.pk %}" class="btn btn-sm btn-success">
@@ -99,7 +99,7 @@
                                 <td><span class="badge bg-warning">{{ report.get_reason_display }}</span></td>
                                 <td>{{ report.created_at|date:"M d, Y" }}</td>
                                 <td>
-                                    <a href="{% url 'notes:detail' report.note.pk %}" class="btn btn-sm btn-info" target="_blank">
+                                    <a href="{% url 'notes:detail' report.note.pk %}" class="btn btn-sm btn-outline-primary" target="_blank">
                                         <i class="fas fa-eye"></i> View Note
                                     </a>
                                     <a href="{% url 'notes:review_report' report.pk %}" class="btn btn-sm btn-primary">
