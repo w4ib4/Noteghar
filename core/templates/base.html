@@ -3,439 +3,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}NoteGhar - Share & Learn{% endblock %}</title>
+    <title>{% block title %}NoteGhar — Share & Learn{% endblock %}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary: #1E3A8A;
-            --primary-light: #2563EB;
-            --secondary: #22C55E;
-            --accent: #F59E0B;
-            --dark: #0f172a;
-            --light: #F8FAFC;
-            --white: #FFFFFF;
-            --border: #E2E8F0;
-            --text-muted: #64748B;
+            --primary:        #2563EB;
+            --primary-dark:   #1D4ED8;
+            --primary-light:  #EFF6FF;
+            --accent:         #7C3AED;
+            --success:        #059669;
+            --warning:        #D97706;
+            --danger:         #DC2626;
+            --dark:           #0F172A;
+            --body-bg:        #F8FAFC;
+            --surface:        #FFFFFF;
+            --border:         #E2E8F0;
+            --border-hover:   #CBD5E1;
+            --text-muted:     #64748B;
+            --text-light:     #94A3B8;
+            --nav-height:     64px;
+            --radius-sm:      6px;
+            --radius-md:      10px;
+            --radius-lg:      14px;
+            --radius-xl:      20px;
+            --shadow-sm:      0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+            --shadow-md:      0 4px 12px rgba(15,23,42,.08), 0 2px 4px rgba(15,23,42,.04);
+            --shadow-lg:      0 10px 30px rgba(15,23,42,.10);
         }
+
+        *, *::before, *::after { box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--body-bg);
             color: var(--dark);
-            background: var(--white);
-        }
-
-        .navbar {
-            background: var(--white);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 0;
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--primary) !important;
-        }
-
-        .nav-link {
-            color: var(--dark) !important;
-            font-weight: 500;
-        }
-
-        .nav-link:hover {
-            color: var(--primary) !important;
-        }
-
-        .hero-section {
-            background: var(--white);
-            padding: 100px 0;
-        }
-
-        .hero-section h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: var(--dark);
-            line-height: 1.1;
-        }
-
-        .hero-section h1 span {
-            color: var(--primary);
-        }
-
-        .hero-section p {
-            font-size: 1.25rem;
-            color: var(--text-muted);
-            margin: 1.5rem 0;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
+
+        /* ── NAVBAR ──────────────────────────────────────────── */
+        .navbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            height: var(--nav-height);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar .container { height: 100%; }
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--primary) !important;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .navbar-brand .brand-icon {
+            width: 32px; height: 32px;
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 0.9rem;
+        }
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            font-size: 0.875rem;
+            padding: 6px 12px !important;
+            border-radius: var(--radius-sm);
+            transition: color .15s, background .15s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary) !important;
+            background: var(--primary-light);
+        }
+        .nav-link i { margin-right: 4px; font-size: 0.8rem; }
+
+        .navbar-pending-badge {
+            background: var(--danger);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 20px;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        /* ── BUTTONS ─────────────────────────────────────────── */
+        .btn {
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            padding: 9px 20px;
+            transition: all .18s ease;
+            letter-spacing: -0.01em;
+            border: 1.5px solid transparent;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-sm { padding: 5px 12px; font-size: 0.8125rem; border-radius: var(--radius-sm); }
+        .btn-lg { padding: 12px 28px; font-size: 0.9375rem; }
 
         .btn-primary {
-            background: var(--primary);
-            border: none;
-            padding: 14px 32px;
-            font-weight: 600;
-            border-radius: 8px;
-            color: var(--white);
-            transition: all 0.2s;
+            background: var(--primary); color: #fff; border-color: var(--primary);
         }
+        .btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
-        .btn-primary:hover {
-            background: var(--primary-light);
-            transform: translateY(-1px);
+        .btn-outline-primary {
+            background: transparent; color: var(--primary); border-color: var(--primary);
         }
+        .btn-outline-primary:hover { background: var(--primary); color: #fff; }
 
-        .btn-success {
-            background: var(--secondary);
-            border: none;
-            padding: 14px 32px;
-            font-weight: 600;
-            border-radius: 8px;
-            color: var(--white);
+        .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+        .btn-success:hover { background: #047857; color: #fff; }
+        .btn-outline-success { background: transparent; color: var(--success); border-color: var(--success); }
+        .btn-outline-success:hover { background: var(--success); color: #fff; }
+
+        .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+        .btn-danger:hover { background: #B91C1C; color: #fff; }
+        .btn-outline-danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+        .btn-outline-danger:hover { background: var(--danger); color: #fff; }
+
+        .btn-warning { background: var(--warning); color: #fff; border-color: var(--warning); }
+        .btn-warning:hover { background: #B45309; color: #fff; }
+        .btn-outline-warning { color: var(--warning); border-color: var(--warning); background: transparent; }
+        .btn-outline-warning:hover { background: var(--warning); color: #fff; }
+
+        .btn-secondary, .btn-outline-secondary {
+            background: transparent; color: var(--text-muted); border-color: var(--border-hover);
         }
-
-        .btn-success:hover {
-            background: #16A34A;
+        .btn-secondary:hover, .btn-outline-secondary:hover {
+            background: var(--body-bg); color: var(--dark); border-color: #94A3B8;
         }
+        .btn-dark { background: var(--dark); color: #fff; border-color: var(--dark); }
+        .btn-dark:hover { background: #1E293B; color: #fff; }
+        .btn-outline-dark { color: var(--dark); border-color: var(--dark); background: transparent; }
+        .btn-outline-dark:hover { background: var(--dark); color: #fff; }
 
-        .btn-outline {
+        .btn-white { background: #fff; color: var(--primary); border-color: #fff; }
+        .btn-white:hover { background: var(--primary-light); color: var(--primary); }
+
+        .btn-info, .btn-outline-info { }
+        .btn-info { background: #0EA5E9; color: #fff; border-color: #0EA5E9; }
+        .btn-info:hover { background: #0284C7; color: #fff; }
+        .btn-outline-info { color: #0EA5E9; border-color: #0EA5E9; background: transparent; }
+        .btn-outline-info:hover { background: #0EA5E9; color: #fff; }
+
+        /* ── CARDS ───────────────────────────────────────────── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+        }
+        .card-header {
             background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 12px 32px;
-            font-weight: 600;
-            border-radius: 8px;
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: var(--white);
-        }
-
-        .stats-section {
-            background: var(--light);
-            padding: 60px 0;
-            border-top: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 0.9375rem;
         }
+        .card-body { padding: 20px; }
+        .card-header.bg-primary   { background: var(--primary)  !important; color: #fff !important; border: none; }
+        .card-header.bg-success   { background: var(--success)  !important; color: #fff !important; border: none; }
+        .card-header.bg-danger    { background: var(--danger)   !important; color: #fff !important; border: none; }
+        .card-header.bg-warning   { background: #FBBF24         !important; color: var(--dark) !important; border: none; }
+        .card-header.bg-info      { background: #0EA5E9         !important; color: #fff !important; border: none; }
+        .card-header.bg-dark      { background: var(--dark)     !important; color: #fff !important; border: none; }
+        .card-header.bg-light     { background: var(--body-bg)  !important; border: none; }
 
-        .stat-box {
-            text-align: center;
+        /* ── BADGES ──────────────────────────────────────────── */
+        .badge { font-weight: 600; font-size: 0.72rem; padding: 4px 9px; border-radius: var(--radius-sm); letter-spacing: 0.02em; }
+        .bg-primary   { background: var(--primary) !important; }
+        .bg-success   { background: var(--success) !important; }
+        .bg-danger    { background: var(--danger)  !important; }
+        .bg-warning   { background: #FBBF24        !important; }
+        .bg-info      { background: #0EA5E9        !important; }
+        .bg-secondary { background: #64748B        !important; }
+        .bg-dark      { background: var(--dark)    !important; }
+        .text-dark    { color: var(--dark)         !important; }
+
+        /* ── FORMS ───────────────────────────────────────────── */
+        .form-control, .form-select {
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 9px 13px;
+            font-size: 0.875rem;
+            transition: border-color .15s, box-shadow .15s;
+            background: var(--surface);
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+            outline: none;
+        }
+        .form-label { font-weight: 600; font-size: 0.8125rem; margin-bottom: 6px; color: #374151; }
+        .form-text  { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* ── ALERTS ──────────────────────────────────────────── */
+        .alert { border-radius: var(--radius-md); border: 1.5px solid transparent; font-size: 0.875rem; padding: 12px 16px; }
+        .alert-success { background: #ECFDF5; color: #065F46; border-color: #6EE7B7; }
+        .alert-danger  { background: #FEF2F2; color: #7F1D1D; border-color: #FCA5A5; }
+        .alert-warning { background: #FFFBEB; color: #78350F; border-color: #FCD34D; }
+        .alert-info    { background: #EFF6FF; color: #1E3A8A; border-color: #93C5FD; }
+
+        /* ── TABLE ───────────────────────────────────────────── */
+        .table { font-size: 0.875rem; }
+        .table th { font-weight: 600; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1.5px solid var(--border) !important; padding: 10px 16px; }
+        .table td { padding: 12px 16px; border-color: var(--border); vertical-align: middle; }
+        .table-hover tbody tr:hover { background: var(--primary-light); }
+
+        /* ── STAT CARDS ──────────────────────────────────────── */
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
             padding: 20px;
+            transition: box-shadow .2s, border-color .2s;
         }
-
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--primary);
-            display: block;
+        .stat-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); }
+        .stat-icon {
+            width: 44px; height: 44px;
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; margin-bottom: 12px;
         }
+        .stat-icon.blue   { background: #EFF6FF; color: var(--primary); }
+        .stat-icon.green  { background: #ECFDF5; color: var(--success); }
+        .stat-icon.amber  { background: #FFFBEB; color: var(--warning); }
+        .stat-icon.red    { background: #FEF2F2; color: var(--danger);  }
+        .stat-icon.purple { background: #F5F3FF; color: var(--accent);  }
+        .stat-value { font-size: 1.875rem; font-weight: 800; color: var(--dark); line-height: 1.1; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
 
-        .stat-box p {
-            color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .feature-card {
-            padding: 2.5rem;
-            background: var(--white);
-            border: 2px solid var(--border);
-            border-radius: 12px;
+        /* ── NOTE CARDS ──────────────────────────────────────── */
+        .note-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            transition: all .2s;
             height: 100%;
-            transition: all 0.3s;
+            display: flex; flex-direction: column;
         }
+        .note-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .note-card-title { font-weight: 700; font-size: 0.9375rem; color: var(--dark); margin-bottom: 6px; line-height: 1.4; }
+        .note-card-meta  { font-size: 0.78rem; color: var(--text-muted); }
+        .note-card-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border); }
 
-        .feature-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.1);
+        .file-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.7rem; font-weight: 700; padding: 3px 8px;
+            border-radius: var(--radius-sm); letter-spacing: 0.04em;
         }
+        .file-badge.pdf  { background: #FEF2F2; color: #B91C1C; }
+        .file-badge.docx { background: #EFF6FF; color: #1D4ED8; }
+        .file-badge.pptx { background: #FFF7ED; color: #C2410C; }
+        .file-badge.default { background: var(--body-bg); color: var(--text-muted); }
 
-        .feature-icon {
-            width: 56px;
-            height: 56px;
-            background: var(--primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--white);
-            font-size: 1.5rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .feature-card h4,
-        .feature-card h3 {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: var(--dark);
-        }
-
-        .feature-card p {
-            color: var(--text-muted);
-            line-height: 1.7;
-            margin: 0;
-        }
-
-        .how-it-works {
-            padding: 100px 0;
-            background: var(--white);
-        }
-
-        .step-card {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .step-number {
-            width: 56px;
-            height: 56px;
-            background: var(--secondary);
-            color: var(--white);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.5rem;
-            margin: 0 auto 1.25rem;
-        }
-
-        .step-card h4,
-        .step-card h3 {
-            font-size: 1.35rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: var(--dark);
-        }
-
-        .step-card p {
-            color: var(--text-muted);
-            margin: 0;
-            line-height: 1.6;
-        }
-
-        .testimonial-card {
-            background: var(--white);
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
-            margin: 15px 0;
-        }
-
-        .cta-section {
-            background: var(--primary);
-            color: var(--white);
-            padding: 100px 0;
-            text-align: center;
-        }
-
-        .cta-section h2 {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .cta-section p {
-            font-size: 1.35rem;
-            margin-bottom: 2.5rem;
-            opacity: 0.95;
-        }
-
-        .btn-white {
-            background: var(--white);
-            color: var(--primary);
-            padding: 14px 32px;
-            border: none;
-            font-weight: 600;
-            border-radius: 8px;
-        }
-
-        .btn-white:hover {
-            background: var(--light);
-            color: var(--primary);
-        }
-
-        .category-badge {
-            display: inline-block;
-            padding: 8px 20px;
-            background: var(--white);
-            border-radius: 25px;
-            margin: 5px;
-            border: 1px solid var(--border);
-            color: var(--dark);
-            transition: all 0.3s;
-        }
-
-        .category-badge:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(15, 23, 42, 0.12);
-            border-color: var(--primary);
-        }
-
-        .section-title {
-            font-size: 2.75rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            text-align: center;
-            color: var(--dark);
-        }
-
-        .section-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-muted);
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
+        /* ── FOOTER ──────────────────────────────────────────── */
         footer {
-            background: var(--white);
-            border-top: 1px solid var(--border);
+            background: var(--dark);
+            color: #94A3B8;
             padding: 60px 0 30px;
-            color: var(--text-muted);
+            margin-top: 80px;
         }
+        footer h5 { color: #F1F5F9; font-weight: 700; font-size: 0.9rem; margin-bottom: 16px; }
+        footer a  { color: #94A3B8; text-decoration: none; font-size: 0.875rem; transition: color .15s; }
+        footer a:hover { color: #F1F5F9; }
+        footer .brand-footer { font-size: 1.125rem; font-weight: 800; color: #F1F5F9; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        footer .brand-footer .icon { width: 28px; height: 28px; background: var(--primary); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #fff; }
+        footer hr { border-color: #1E293B; margin: 40px 0 20px; }
+        footer .footer-bottom { font-size: 0.8rem; color: #475569; }
 
-        footer h5 {
+        /* ── SECTION HEADERS ─────────────────────────────────── */
+        .page-header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 32px 0;
+            margin-bottom: 32px;
+        }
+        .page-title { font-size: 1.75rem; font-weight: 800; color: var(--dark); margin-bottom: 4px; letter-spacing: -0.03em; }
+        .page-subtitle { color: var(--text-muted); font-size: 0.9rem; }
+
+        /* ── DROPDOWN ────────────────────────────────────────── */
+        .dropdown-menu {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 6px;
+            min-width: 200px;
+        }
+        .dropdown-item {
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            padding: 8px 12px;
             color: var(--dark);
-            font-weight: 700;
-            margin-bottom: 1.25rem;
+            display: flex; align-items: center; gap: 8px;
         }
+        .dropdown-item:hover { background: var(--primary-light); color: var(--primary); }
+        .dropdown-item i { width: 16px; text-align: center; font-size: 0.85rem; }
+        .dropdown-divider { border-color: var(--border); margin: 4px 0; }
 
-        footer a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.2s;
+        /* ── LIST GROUPS ─────────────────────────────────────── */
+        .list-group-item {
+            border-color: var(--border);
+            font-size: 0.875rem;
+            padding: 12px 16px;
+            transition: background .15s;
         }
+        .list-group-item-action:hover { background: var(--primary-light); color: var(--dark); }
 
-        footer a:hover {
-            color: var(--primary);
+        /* ── EMPTY STATE ─────────────────────────────────────── */
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-muted);
         }
-
-        .alert-success {
-            background: #DCFCE7;
-            color: #166534;
-            border: 1px solid #BBF7D0;
+        .empty-state-icon {
+            width: 72px; height: 72px;
+            background: var(--body-bg);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.75rem; color: var(--text-light);
         }
+        .empty-state h5 { font-weight: 700; color: var(--dark); margin-bottom: 8px; }
 
-        .alert-danger {
-            background: #FEE2E2;
-            color: #991B1B;
-            border: 1px solid #FECACA;
+        /* ── QUICK ACTIONS ───────────────────────────────────── */
+        .quick-action {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 10px; padding: 24px 16px;
+            background: var(--surface);
+            border: 1.5px dashed var(--border);
+            border-radius: var(--radius-lg);
+            text-decoration: none; color: var(--text-muted);
+            font-weight: 600; font-size: 0.875rem;
+            transition: all .2s;
+            min-height: 110px;
         }
+        .quick-action i { font-size: 1.5rem; }
+        .quick-action:hover { border-color: var(--primary); background: var(--primary-light); color: var(--primary); border-style: solid; }
 
-        .alert-warning {
-            background: #FEF3C7;
-            color: #92400E;
-            border: 1px solid #FDE68A;
-        }
+        /* ── MISC ────────────────────────────────────────────── */
+        .text-muted { color: var(--text-muted) !important; }
+        .section-title { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--dark); }
+        .section-sub   { font-size: 1rem; color: var(--text-muted); }
 
-        .alert-info {
-            background: #DBEAFE;
-            color: #1E3A8A;
-            border: 1px solid #BFDBFE;
-        }
+        .hover-lift { transition: transform .2s, box-shadow .2s; }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 
-        .badge {
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 6px;
-        }
-
-        .badge.bg-danger {
-            background: #EF4444 !important;
-        }
-
-        .badge.bg-success {
-            background: var(--secondary) !important;
+        /* ── USER AVATAR ─────────────────────────────────────── */
+        .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-weight: 700; font-size: 0.875rem;
+            flex-shrink: 0;
         }
 
         @media (max-width: 768px) {
-            .hero-section {
-                padding: 60px 0;
-            }
-            .hero-section h1 {
-                font-size: 2.25rem;
-            }
-            .hero-section p {
-                font-size: 1.1rem;
-            }
-            .stat-number {
-                font-size: 2.25rem;
-            }
-            .section-title {
-                font-size: 2rem;
-            }
-            .cta-section h2 {
-                font-size: 2rem;
-            }
+            .page-title { font-size: 1.375rem; }
+            .section-title { font-size: 1.5rem; }
+            .stat-value { font-size: 1.5rem; }
         }
     </style>
 
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container d-flex align-items-center">
             <a class="navbar-brand" href="{% url 'core:home' %}">
-                <i class="fas fa-book-reader"></i> NoteGhar
+                <span class="brand-icon"><i class="fas fa-book-open"></i></span>
+                NoteGhar
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px;">
+                <i class="fas fa-bars" style="font-size: 0.85rem; color: var(--text-muted);"></i>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:home' %}">Home</a>
+                        <a class="nav-link" href="{% url 'notes:list' %}"><i class="fas fa-compass"></i> Browse</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'notes:list' %}">Browse Notes</a>
+                        <a class="nav-link" href="{% url 'notes:trending' %}"><i class="fas fa-fire"></i> Trending</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'notes:leaderboard' %}"><i class="fas fa-trophy"></i> Leaderboard</a>
+                    </li>
+
                     {% if user.is_authenticated %}
+                        {% if user.role == 'student' or user.is_superuser %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'notes:upload' %}">Upload</a>
+                            <a class="nav-link" href="{% url 'notes:upload' %}"><i class="fas fa-upload"></i> Upload</a>
                         </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle"></i> {{ user.username }}
+                        {% endif %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'notes:request_board' %}"><i class="fas fa-question-circle"></i> Requests</a>
+                        </li>
+                        {% if user.role in 'moderator,admin' or user.is_superuser %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'moderation:dashboard' %}">
+                                <i class="fas fa-shield-alt" style="color: var(--danger);"></i> Moderation
+                                {% if total_pending %}
+                                    <span class="navbar-pending-badge">{{ total_pending }}</span>
+                                {% endif %}
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                    <i class="fas fa-user"></i> Profile
-                                </a></li>
-                                <li><a class="dropdown-item" href="{% url 'notes:my_notes' %}">
-                                    <i class="fas fa-folder"></i> My Notes
-                                </a></li>
-                                {% if user.is_moderator or user.is_admin_user %}
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="{% url 'moderation:dashboard' %}">
-                                            <i class="fas fa-shield-alt text-danger"></i> Moderation
-                                        </a>
-                                    </li>
+                        </li>
+                        {% endif %}
+
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="user-avatar" style="padding:0;overflow:hidden;">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" style="width:36px;height:36px;object-fit:cover;border-radius:50%;">
+                                    {% else %}
+                                        {{ user.username|slice:":1"|upper }}
+                                    {% endif %}
+                                </span>
+                                <span class="d-none d-lg-inline" style="font-size: 0.875rem; font-weight: 600;">{{ user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li class="px-3 py-2 mb-1">
+                                    <p class="mb-0" style="font-weight: 700; font-size: 0.875rem; color: var(--dark);">{{ user.get_full_name|default:user.username }}</p>
+                                    <p class="mb-0" style="font-size: 0.75rem; color: var(--text-muted);">{{ user.get_role_display }}</p>
+                                </li>
+                                <div style="height: 1px; background: var(--border); margin: 0 -6px 6px;"></div>
+                                <li><a class="dropdown-item" href="{% url 'notes:my_profile' %}"><i class="fas fa-user"></i> My Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-cog"></i> Settings</a></li>
+                                {% if user.role == 'student' %}
+                                <li><a class="dropdown-item" href="{% url 'notes:my_notes' %}"><i class="fas fa-folder"></i> My Notes</a></li>
+                                <li><a class="dropdown-item" href="{% url 'notes:my_bookmarks' %}"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+                                <li><a class="dropdown-item" href="{% url 'notes:my_history' %}"><i class="fas fa-history"></i> History</a></li>
                                 {% endif %}
                                 {% if user.is_admin_user %}
-                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}">
-                                        <i class="fas fa-cog"></i> Admin Panel
-                                    </a></li>
+                                <div style="height: 1px; background: var(--border); margin: 4px -6px;"></div>
+                                <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i class="fas fa-chart-bar"></i> Admin Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="fas fa-tools"></i> Django Admin</a></li>
                                 {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
-                                </a></li>
+                                <div style="height: 1px; background: var(--border); margin: 4px -6px;"></div>
+                                <li>
+                                    <form method="post" action="{% url 'account_logout' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item border-0 bg-transparent w-100 text-start" style="color: var(--danger);">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </button>
+                                    </form>
+                                </li>
                             </ul>
                         </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                        <li class="nav-item ms-lg-2">
+                            <a class="nav-link" href="{% url 'accounts:student_login' %}">Log in</a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-primary btn-sm ms-2" href="{% url 'accounts:register' %}">
-                                <i class="fas fa-user-plus"></i> Sign Up
+                            <a class="btn btn-primary btn-sm ms-1" href="{% url 'accounts:signup_student' %}">
+                                <i class="fas fa-user-plus"></i> Sign up
                             </a>
                         </li>
                     {% endif %}
@@ -444,55 +475,111 @@
         </div>
     </nav>
 
-    <!-- Messages -->
     {% if messages %}
-        <div class="container mt-3">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate__animated animate__fadeInDown" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            {% endfor %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible d-flex align-items-center gap-2" role="alert" style="animation: fadeSlideDown .25s ease;">
+            {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}<i class="fas fa-exclamation-circle"></i>
+            {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
+            {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+            <span>{{ message }}</span>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
         </div>
+        {% endfor %}
+    </div>
     {% endif %}
 
-    <!-- Main Content -->
     {% block content %}{% endblock %}
 
-    <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-book-reader"></i> NoteGhar</h5>
-                    <p>Empowering students through collaborative learning and resource sharing.</p>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="brand-footer">
+                        <span class="icon"><i class="fas fa-book-open"></i></span>
+                        NoteGhar
+                    </div>
+                    <p style="font-size: 0.875rem; line-height: 1.7;">Empowering students across Nepal through collaborative knowledge sharing and quality-assured academic resources.</p>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
+                <div class="col-sm-4 col-lg-2">
+                    <h5>Platform</h5>
+                    <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 8px;">
                         <li><a href="{% url 'notes:list' %}">Browse Notes</a></li>
-                        <li><a href="{% url 'accounts:register' %}">Sign Up</a></li>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="{% url 'notes:trending' %}">Trending</a></li>
+                        <li><a href="{% url 'notes:leaderboard' %}">Leaderboard</a></li>
+                        <li><a href="{% url 'notes:request_board' %}">Requests</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Contact Us</h5>
-                    <p>
-                        <i class="fas fa-envelope"></i> support@noteghar.com<br>
-                        <i class="fas fa-phone"></i> +977 (1) 234-5678<br>
-                        <i class="fas fa-map-marker-alt"></i> Kathmandu, Nepal
-                    </p>
+                <div class="col-sm-4 col-lg-2">
+                    <h5>Account</h5>
+                    <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 8px;">
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'accounts:profile' %}">My Profile</a></li>
+                        {% if user.role == 'student' %}
+                        <li><a href="{% url 'notes:my_notes' %}">My Notes</a></li>
+                        <li><a href="{% url 'notes:my_bookmarks' %}">Bookmarks</a></li>
+                        <li><a href="{% url 'accounts:signup_moderator' %}">Become a Moderator</a></li>
+                        {% elif user.role == 'moderator' %}
+                        <li><a href="{% url 'moderation:dashboard' %}">Mod Dashboard</a></li>
+                        {% elif user.is_admin_user %}
+                        <li><a href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
+                        {% endif %}
+                        {% else %}
+                        <li><a href="{% url 'accounts:signup_student' %}">Student Sign Up</a></li>
+                        <li><a href="{% url 'accounts:signup_moderator' %}">Become a Moderator</a></li>
+                        <li><a href="{% url 'accounts:student_login' %}">Log In</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-sm-4 col-lg-4">
+                    <h5>Contact</h5>
+                    <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.875rem;">
+                        <a href="mailto:notegharsupport@gmail.com"><i class="fas fa-envelope me-2" style="width: 14px;"></i>support@noteghar.com</a>
+                        <span><i class="fas fa-map-marker-alt me-2" style="width: 14px;"></i>Kathmandu, Nepal</span>
+                    </div>
                 </div>
             </div>
-            <hr style="border-color: var(--border);">
-            <div class="text-center">
-                <p class="mb-0">&copy; 2024 NoteGhar. All rights reserved.</p>
+            <hr>
+            <div class="d-flex flex-wrap justify-content-between align-items-center footer-bottom">
+                <span>&copy; 2026 NoteGhar. All rights reserved.</span>
+                <span>Built with <i class="fas fa-heart" style="color: #EF4444;"></i> for students</span>
             </div>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+
+    <script>
+    (function () {
+        const TLD_FIXES = {'.con':'.com','.cmo':'.com','.ocm':'.com','.cpm':'.com','.coml':'.com','.ney':'.net','.ogr':'.org'};
+        const DOMAIN_FIXES = {'gmial.com':'gmail.com','gamil.com':'gmail.com','gmal.com':'gmail.com','gnail.com':'gmail.com','yaho.com':'yahoo.com','yahooo.com':'yahoo.com','hotmial.com':'hotmail.com','outlok.com':'outlook.com','outloo.com':'outlook.com'};
+        function checkEmail(v) {
+            if (!v || !v.includes('@')) return null;
+            const lo = v.toLowerCase().trim();
+            const at = lo.lastIndexOf('@');
+            const dom = lo.slice(at+1);
+            if (DOMAIN_FIXES[dom]) return lo.slice(0,at+1)+DOMAIN_FIXES[dom];
+            for (const [b,g] of Object.entries(TLD_FIXES)) if (lo.endsWith(b)) return lo.slice(0,-b.length)+g;
+            return null;
+        }
+        function handleEmail(input) {
+            const sug = checkEmail(input.value);
+            let hint = input.parentNode.querySelector('.ng-email-hint');
+            if (!sug) { if (hint) hint.remove(); return; }
+            if (!hint) { hint = document.createElement('div'); hint.className = 'ng-email-hint'; hint.style.cssText='margin-top:6px;padding:8px 12px;background:#FFFBEB;border:1px solid #FCD34D;border-radius:8px;font-size:.82rem;color:#78350F;display:flex;align-items:center;gap:8px;'; input.parentNode.insertBefore(hint, input.nextSibling); }
+            hint.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Did you mean <strong class="ng-sug" style="cursor:pointer;text-decoration:underline;">'+sug+'</strong>?</span>';
+            hint.querySelector('.ng-sug').onclick = () => { input.value = sug; hint.remove(); };
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input[type="email"],input[name="email"],input[name="login"]').forEach(i => i.addEventListener('blur', () => handleEmail(i)));
+        });
+    })();
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

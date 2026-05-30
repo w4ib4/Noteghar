@@ -1,119 +1,117 @@
 {% extends 'base.html' %}
+{% block title %}Trending — NoteGhar{% endblock %}
 
-{% block title %}Trending Notes - NoteGhar{% endblock %}
+{% block extra_css %}
+<style>
+.trend-rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 800; flex-shrink: 0; }
+.rank-1 { background: #FBBF24; color: #78350F; }
+.rank-2 { background: #D1D5DB; color: #374151; }
+.rank-3 { background: #D97706; color: #fff; }
+.rank-n { background: var(--body-bg); color: var(--text-muted); }
+.trend-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.trend-item:last-child { border: none; }
+.trend-item .title { font-weight: 600; font-size: .9rem; color: var(--dark); margin-bottom: 4px; }
+.trend-item .meta  { font-size: .75rem; color: var(--text-muted); }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.section-header h3 { font-size: 1.0625rem; font-weight: 700; margin: 0; }
+.section-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .9rem; color: #fff; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="mb-4">
-        <i class="fas fa-fire text-danger"></i> Trending & Top Notes
-    </h2>
-    
-    <!-- Trending This Week -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-danger text-white">
-            <h4 class="mb-0">
-                <i class="fas fa-chart-line"></i> Trending This Week
-            </h4>
-        </div>
-        <div class="card-body">
-            {% if trending_notes %}
-                <div class="row g-3">
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title"><i class="fas fa-fire" style="color: var(--danger); margin-right: 10px;"></i>Trending & Top Notes</h1>
+        <p class="page-subtitle">The most popular study materials on NoteGhar right now</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        <!-- Trending This Week -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="section-header">
+                        <div class="section-icon" style="background: var(--danger);"><i class="fas fa-chart-line"></i></div>
+                        <h3>Trending This Week</h3>
+                    </div>
+                    {% if trending_notes %}
                     {% for note in trending_notes %}
-                    <div class="col-md-6">
-                        <div class="card border-danger">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{% url 'notes:detail' note.pk %}">{{ note.title }}</a>
-                                </h5>
-                                <p class="text-muted small mb-2">{{ note.description|truncatewords:15 }}</p>
-                                <div class="mb-2">
-                                    <span class="badge bg-info">{{ note.course.code }}</span>
-                                    <span class="badge bg-secondary">{{ note.subject.name }}</span>
-                                </div>
-                                <div class="text-muted small">
-                                    <i class="fas fa-download"></i> {{ note.download_count }} |
-                                    <i class="fas fa-eye"></i> {{ note.view_count }}
-                                </div>
-                            </div>
+                    <div class="trend-item">
+                        <div class="trend-rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-n{% endif %}">{{ forloop.counter }}</div>
+                        <div class="flex-grow-1">
+                            <a href="{% url 'notes:detail' note.pk %}" class="title d-block">{{ note.title|truncatewords:10 }}</a>
+                            <div class="meta"><i class="fas fa-graduation-cap me-1"></i>{{ note.course.code }} · <i class="fas fa-download me-1"></i>{{ note.download_count }} · <i class="fas fa-eye me-1"></i>{{ note.view_count }}</div>
                         </div>
+                        <a href="{% url 'notes:detail' note.pk %}" class="btn btn-outline-danger btn-sm">View</a>
                     </div>
                     {% endfor %}
+                    {% else %}<p class="text-muted py-4 text-center">No trending notes this week.</p>{% endif %}
                 </div>
-            {% else %}
-                <p class="text-muted text-center">No trending notes this week.</p>
-            {% endif %}
+            </div>
         </div>
-    </div>
-    
-    <!-- Top Rated -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-warning">
-            <h4 class="mb-0">
-                <i class="fas fa-star"></i> Highest Rated
-            </h4>
-        </div>
-        <div class="card-body">
-            {% if top_rated %}
-                <div class="list-group">
+
+        <!-- Highest Rated -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="section-header">
+                        <div class="section-icon" style="background: #FBBF24;"><i class="fas fa-star"></i></div>
+                        <h3>Highest Rated</h3>
+                    </div>
+                    {% if top_rated %}
                     {% for note in top_rated %}
-                    <a href="{% url 'notes:detail' note.pk %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">{{ note.title }}</h6>
-                                <p class="mb-1 small text-muted">
-                                    {{ note.course.name }} - {{ note.subject.name }}
-                                </p>
-                                <div class="text-warning">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= note.avg_rating %}
-                                            <i class="fas fa-star"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="text-dark ms-2">{{ note.avg_rating|floatformat:1 }} ({{ note.rating_count }} ratings)</span>
+                    <div class="trend-item">
+                        <div class="trend-rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-n{% endif %}">{{ forloop.counter }}</div>
+                        <div class="flex-grow-1">
+                            <a href="{% url 'notes:detail' note.pk %}" class="title d-block">{{ note.title|truncatewords:10 }}</a>
+                            <div class="meta">
+                                <span style="color: #FBBF24;">
+                                    {% for i in "12345" %}{% if forloop.counter <= note.avg_rating %}<i class="fas fa-star"></i>{% else %}<i class="far fa-star"></i>{% endif %}{% endfor %}
+                                </span>
+                                <span style="color: var(--dark); margin-left: 4px; font-weight: 600;">{{ note.avg_rating|floatformat:1 }}</span>
+                                <span class="ms-2">({{ note.rating_count }} ratings)</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'notes:detail' note.pk %}" class="btn btn-outline-warning btn-sm">View</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}<p class="text-muted py-4 text-center">No rated notes yet.</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Downloaded -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="section-header">
+                        <div class="section-icon" style="background: var(--primary);"><i class="fas fa-download"></i></div>
+                        <h3>Most Downloaded of All Time</h3>
+                    </div>
+                    {% if most_downloaded %}
+                    <div class="row g-3">
+                        {% for note in most_downloaded %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="note-card">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="trend-rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-n{% endif %}">{{ forloop.counter }}</span>
+                                    <span class="badge bg-primary">{{ note.get_file_extension }}</span>
+                                </div>
+                                <div class="note-card-title">{{ note.title|truncatewords:8 }}</div>
+                                <div class="note-card-meta">{{ note.course.code }} · {{ note.subject.name }}</div>
+                                <div class="note-card-footer d-flex justify-content-between align-items-center">
+                                    <span style="font-size: .875rem; font-weight: 700; color: var(--primary);"><i class="fas fa-download"></i> {{ note.download_count }}</span>
+                                    <a href="{% url 'notes:detail' note.pk %}" class="btn btn-primary btn-sm">View</a>
                                 </div>
                             </div>
                         </div>
-                    </a>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% else %}<p class="text-muted text-center">No downloads yet.</p>{% endif %}
                 </div>
-            {% else %}
-                <p class="text-muted text-center">No rated notes yet.</p>
-            {% endif %}
-        </div>
-    </div>
-    
-    <!-- Most Downloaded -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">
-                <i class="fas fa-download"></i> Most Downloaded
-            </h4>
-        </div>
-        <div class="card-body">
-            {% if most_downloaded %}
-                <div class="list-group">
-                    {% for note in most_downloaded %}
-                    <a href="{% url 'notes:detail' note.pk %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h6 class="mb-1">{{ note.title }}</h6>
-                                <p class="mb-1 small text-muted">
-                                    {{ note.course.name }} - {{ note.subject.name }}
-                                </p>
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-primary fs-5">{{ note.download_count }}</span>
-                                <small class="d-block text-muted">downloads</small>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted text-center">No downloads yet.</p>
-            {% endif %}
+            </div>
         </div>
     </div>
 </div>

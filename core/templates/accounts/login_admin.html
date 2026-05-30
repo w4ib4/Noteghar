@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Admin Login — NoteGhar{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-wrap { min-height: calc(100vh - var(--nav-height) - 200px); display: flex; align-items: center; padding: 48px 0; }
+.auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px; box-shadow: var(--shadow-lg); max-width: 440px; width: 100%; margin: 0 auto; }
+.auth-logo  { width: 52px; height: 52px; background: var(--dark); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.375rem; margin: 0 auto 20px; }
+.auth-title { font-size: 1.5rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; text-align: center; margin-bottom: 6px; }
+.auth-sub   { font-size: .875rem; color: var(--text-muted); text-align: center; margin-bottom: 28px; }
+.auth-footer { text-align: center; font-size: .8125rem; color: var(--text-muted); margin-top: 20px; }
+.role-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.role-tab { flex: 1; text-align: center; padding: 10px 8px; border-radius: var(--radius-md); border: 1.5px solid var(--border); font-size: .8rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: all .15s; }
+.role-tab.active { border-color: var(--dark); color: var(--dark); background: var(--body-bg); }
+.role-tab:hover  { border-color: var(--dark); color: var(--dark); background: var(--body-bg); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-logo"><i class="fas fa-user-shield"></i></div>
+            <h1 class="auth-title">Admin Login</h1>
+            <p class="auth-sub">System administrator access</p>
+
+            <div class="role-tabs">
+                <a href="{% url 'accounts:student_login' %}" class="role-tab">Student</a>
+                <a href="{% url 'accounts:moderator_login' %}" class="role-tab">Moderator</a>
+                <a href="{% url 'accounts:admin_login' %}" class="role-tab active">Admin</a>
+            </div>
+
+            <div class="alert alert-warning d-flex gap-2 mb-3" style="font-size:.8rem;">
+                <i class="fas fa-lock mt-1 flex-shrink-0"></i>
+                <span>Restricted access. Authorised administrators only.</span>
+            </div>
+
+            <form method="post" action="{% url 'account_login' %}" id="adminLoginForm" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'admin_dashboard' %}">
+                <div class="mb-3">
+                    <label class="form-label">Username or Email</label>
+                    <input type="text" name="login" class="form-control" placeholder="Enter your username or email" required>
+                </div>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0">Password</label>
+                        <a href="{% url 'account_reset_password' %}" style="font-size:.78rem; color: var(--dark);">Forgot password?</a>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" name="password" id="loginPw" class="form-control" placeholder="Enter your password" required>
+                        <button class="btn btn-secondary" type="button" id="togglePw" tabindex="-1" style="border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;">
+                            <i class="fas fa-eye" id="pwIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark w-100"><i class="fas fa-sign-in-alt"></i> Log In as Admin</button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="mb-0"><a href="{% url 'core:home' %}" style="color: var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const btn = document.getElementById('togglePw');
+const pw  = document.getElementById('loginPw');
+const ico = document.getElementById('pwIcon');
+if (btn) btn.addEventListener('click', () => {
+    const isText = pw.type === 'text';
+    pw.type = isText ? 'password' : 'text';
+    ico.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+});
+</script>
+{% endblock %}

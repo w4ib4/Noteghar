@@ -351,9 +351,14 @@
                     <div class="review-card p-3 mb-3 rounded">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <div>
-                                <strong class="text-primary">
-                                    <i class="fas fa-user-circle"></i> {{ rating.user.username }}
-                                </strong>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if rating.user.profile_picture %}
+                                    <img src="{{ rating.user.profile_picture.url }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+                                    {% else %}
+                                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;flex-shrink:0;">{{ rating.user.username|slice:":1"|upper }}</div>
+                                    {% endif %}
+                                    <strong class="text-primary">{{ rating.user.username }}</strong>
+                                </div>
                                 <div class="text-warning mt-1">
                                     {% for i in "12345" %}
                                         {% if forloop.counter <= rating.rating %}

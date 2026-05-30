@@ -1,119 +1,88 @@
 {% extends 'base.html' %}
-
-{% block title %}Note Request Board - NoteGhar{% endblock %}
+{% block title %}Note Request Board — NoteGhar{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2><i class="fas fa-clipboard-list text-primary"></i> Note Request Board</h2>
-            <p class="text-muted">Help your fellow students by fulfilling their requests</p>
-        </div>
-        <a href="{% url 'notes:create_request' %}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Create Request
-        </a>
+<div class="page-header">
+  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h1 class="page-title"><i class="fas fa-clipboard-list" style="color:var(--primary);margin-right:10px;"></i>Request Board</h1>
+      <p class="page-subtitle">Help fellow students by responding to note requests</p>
     </div>
-    
-    <!-- Filters -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Course</label>
-                    <select name="course" class="form-control">
-                        <option value="">All Courses</option>
-                        {% for course in courses %}
-                            <option value="{{ course.id }}" {% if request.GET.course == course.id|stringformat:"s" %}selected{% endif %}>
-                                {{ course.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Semester</label>
-                    <select name="semester" class="form-control">
-                        <option value="">All Semesters</option>
-                        {% for semester in semesters %}
-                            <option value="{{ semester.id }}" {% if request.GET.semester == semester.id|stringformat:"s" %}selected{% endif %}>
-                                {{ semester.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-filter"></i> Filter
-                    </button>
-                    <a href="{% url 'notes:request_board' %}" class="btn btn-outline-secondary ms-2">
-                        Clear
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Requests -->
-    {% if requests %}
-        <div class="row g-4">
-            {% for req in requests %}
-            <div class="col-md-6">
-                <div class="card shadow-sm h-100 border-start border-primary border-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title mb-0">{{ req.topic }}</h5>
-                            <span class="badge bg-success">OPEN</span>
-                        </div>
-                        
-                        <p class="text-muted small mb-2">{{ req.description|truncatewords:20 }}</p>
-                        
-                        <div class="mb-3">
-                            <span class="badge bg-info me-1">{{ req.course.code }}</span>
-                            <span class="badge bg-secondary me-1">Sem {{ req.semester.number }}</span>
-                            {% if req.subject %}
-                                <span class="badge bg-warning text-dark">{{ req.subject.name }}</span>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
-                            <span>
-                                <i class="fas fa-user"></i> {{ req.requester.username }}
-                            </span>
-                            <span>
-                                <i class="far fa-clock"></i> {{ req.created_at|timesince }} ago
-                            </span>
-                        </div>
-                        
-                        <div class="mb-2">
-                            <i class="fas fa-reply"></i> 
-                            <strong>{{ req.get_responses_count }}</strong> response{{ req.get_responses_count|pluralize }}
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'notes:request_detail' req.pk %}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-eye"></i> View Details
-                            </a>
-                            {% if user.is_authenticated %}
-                                {% if user != req.requester %}
-                                <a href="{% url 'notes:respond_to_request' req.pk %}" class="btn btn-outline-success btn-sm">
-                                    <i class="fas fa-paper-plane"></i> Respond
-                                </a>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info text-center py-5">
-            <i class="fas fa-clipboard fa-3x mb-3" style="opacity: 0.3;"></i>
-            <h4>No Open Requests</h4>
-            <p class="mb-3">There are no open note requests at the moment.</p>
-            <a href="{% url 'notes:create_request' %}" class="btn btn-success">
-                <i class="fas fa-plus"></i> Create First Request
-            </a>
-        </div>
+    {% if user.is_authenticated and user.role == 'student' %}
+    <a href="{% url 'notes:create_request' %}" class="btn btn-primary"><i class="fas fa-plus"></i> New Request</a>
     {% endif %}
+  </div>
+</div>
+
+<div class="container mb-5">
+  <div class="card mb-4">
+    <div class="card-body py-3">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label mb-1" style="font-size:.8rem;">Course</label>
+          <select name="course" class="form-select form-select-sm">
+            <option value="">All Courses</option>
+            {% for course in courses %}<option value="{{ course.id }}" {% if request.GET.course == course.id|stringformat:"s" %}selected{% endif %}>{{ course.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label mb-1" style="font-size:.8rem;">Semester</label>
+          <select name="semester" class="form-select form-select-sm">
+            <option value="">All Semesters</option>
+            {% for sem in semesters %}<option value="{{ sem.id }}" {% if request.GET.semester == sem.id|stringformat:"s" %}selected{% endif %}>{{ sem.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+          <a href="{% url 'notes:request_board' %}" class="btn btn-secondary btn-sm ms-1">Clear</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if requests %}
+  <div class="row g-3">
+    {% for req in requests %}
+    <div class="col-md-6">
+      <div class="note-card" style="border-left:3px solid var(--primary);">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h6 style="font-weight:700;font-size:.9375rem;color:var(--dark);margin:0;">{{ req.topic }}</h6>
+          <span class="badge bg-success" style="flex-shrink:0;">Open</span>
+        </div>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px;">{{ req.description|truncatewords:20 }}</p>
+        <div class="mb-2">
+          <span class="badge bg-info me-1">{{ req.course.code }}</span>
+          <span class="badge bg-secondary me-1">Sem {{ req.semester.number }}</span>
+          {% if req.subject %}<span class="badge bg-warning text-dark">{{ req.subject.name }}</span>{% endif %}
+        </div>
+        <div class="note-card-footer d-flex justify-content-between align-items-center">
+          <div style="font-size:.75rem;color:var(--text-muted);">
+            <i class="fas fa-user me-1"></i>{{ req.requester.username }}
+            <span class="mx-2">·</span>
+            <i class="fas fa-reply me-1"></i>{{ req.get_responses_count }} response{{ req.get_responses_count|pluralize }}
+            <span class="mx-2">·</span>
+            {{ req.created_at|timesince }} ago
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'notes:request_detail' req.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+            {% if user.is_authenticated and user != req.requester %}
+            <a href="{% url 'notes:respond_to_request' req.pk %}" class="btn btn-success btn-sm"><i class="fas fa-paper-plane"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="fas fa-clipboard"></i></div>
+    <h5>No open requests</h5>
+    <p>Be the first to request notes for a topic you need.</p>
+    {% if user.is_authenticated and user.role == 'student' %}
+    <a href="{% url 'notes:create_request' %}" class="btn btn-primary mt-2"><i class="fas fa-plus"></i> Create First Request</a>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

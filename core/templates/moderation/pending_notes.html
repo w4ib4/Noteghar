@@ -48,11 +48,13 @@
                                            class="btn btn-outline-primary" target="_blank">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{% url 'moderation:approve_note' note.pk %}?next=moderation:pending_notes" 
-                                           class="btn btn-success"
-                                           onclick="return confirm('Approve this note?')">
-                                            <i class="fas fa-check"></i>
-                                        </a>
+                                        <form method="post" action="{% url 'moderation:approve_note' note.pk %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="moderation:pending_notes">
+                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Approve this note?')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
                                         <a href="{% url 'moderation:reject_note' note.pk %}" 
                                            class="btn btn-danger">
                                             <i class="fas fa-times"></i>

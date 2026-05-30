@@ -71,14 +71,7 @@
                             {% endif %}
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Tags (optional)</label>
-                            {{ form.tags }}
-                            <div class="form-text">Comma-separated tags (e.g., important, midterm, chapter1)</div>
-                            {% if form.tags.errors %}
-                                <div class="text-danger small">{{ form.tags.errors }}</div>
-                            {% endif %}
-                        </div>
+
                         
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">

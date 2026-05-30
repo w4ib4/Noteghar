@@ -53,20 +53,45 @@ def check_and_award_badges(user):
             earned = count >= badge.requirement_value
             
         elif badge.requirement_type == 'download_count':
-            count = Download.objects.filter(
-                user=user,
-                is_download=True
-            ).count()
+            # For badges with lower thresholds (<=10): downloads BY the user
+            # For badges with higher thresholds (>10): downloads OF user's notes
+            # This handles both Quick Learner (10) and Popular Note (50)
+            if badge.requirement_value <= 15:
+                # Quick Learner style: how many notes has this user downloaded
+                count = Download.objects.filter(
+                    user=user,
+                    is_download=True
+                ).count()
+            else:
+                # Popular Note style: how many times have others downloaded this user's notes
+                count = Download.objects.filter(
+                    note__uploaded_by=user,
+                    is_download=True
+                ).exclude(user=user).count()
             earned = count >= badge.requirement_value
             
         elif badge.requirement_type == 'review_count':
+            # Counts written reviews (with text)
             count = Rating.objects.filter(
                 user=user
             ).exclude(review='').count()
             earned = count >= badge.requirement_value
+
+        elif badge.requirement_type == 'rating_count':
+            # Counts all ratings submitted (with or without text)
+            count = Rating.objects.filter(user=user).count()
+            earned = count >= badge.requirement_value
             
         elif badge.requirement_type == 'helpful_marks':
             # Count helpful marks on user's reviews
+            from .models import RatingHelpful
+            count = RatingHelpful.objects.filter(
+                rating__user=user
+            ).count()
+            earned = count >= badge.requirement_value
+
+        elif badge.requirement_type == 'helpful_count':
+            # Same as helpful_marks — alias for compatibility
             from .models import RatingHelpful
             count = RatingHelpful.objects.filter(
                 rating__user=user
@@ -84,6 +109,10 @@ def check_and_award_badges(user):
             ).count()
             earned = count >= badge.requirement_value
         
+        elif badge.requirement_type == 'streak_days':
+            # Login streak: check login_streak on UserProfile
+            earned = profile.login_streak >= badge.requirement_value
+
         # Award badge if earned
         if earned:
             UserBadge.objects.create(user=user, badge=badge)
@@ -97,13 +126,14 @@ def check_and_award_badges(user):
  
 def award_points(user, points, reason, related_note=None, related_rating=None):
     """
-    Award points to user and log transaction
+    Award points to user and log transaction.
+    Stats are refreshed before badge check so badge thresholds see current values.
     """
     from .models import PointTransaction
-    
+
     profile, _ = UserProfile.objects.get_or_create(user=user)
     leveled_up = profile.add_points(points, reason)
-    
+
     # Log transaction
     PointTransaction.objects.create(
         user=user,
@@ -112,10 +142,13 @@ def award_points(user, points, reason, related_note=None, related_rating=None):
         related_note=related_note,
         related_rating=related_rating
     )
-    
+
+    # Refresh stats BEFORE checking badges so thresholds see latest counts
+    update_user_stats(user)
+
     # Check for new badges
     newly_earned = check_and_award_badges(user)
-    
+
     return {
         'leveled_up': leveled_up,
         'new_badges': newly_earned,
@@ -145,4 +178,3 @@ def update_user_stats(user):
     
     # Check for new badges
     check_and_award_badges(user)
- 

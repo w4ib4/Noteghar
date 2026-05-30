@@ -1,173 +1,265 @@
 {% extends 'base.html' %}
+{% block title %}Apply as Moderator — NoteGhar{% endblock %}
 
-{% block title %}Moderator Application{% endblock %}
+{% block extra_css %}
+<style>
+.signup-wrap{padding:48px 0;}
+.signup-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:40px;box-shadow:var(--shadow-lg);max-width:680px;width:100%;margin:0 auto;}
+.role-tabs{display:flex;gap:6px;margin-bottom:32px;}
+.role-tab{flex:1;text-align:center;padding:9px 6px;border-radius:var(--radius-md);border:1.5px solid var(--border);font-size:.8rem;font-weight:600;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+.role-tab:hover,.role-tab.active{border-color:var(--success);color:var(--success);background:#ECFDF5;}
+.auth-logo{width:52px;height:52px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.375rem;margin:0 auto 20px;}
+.form-section{background:var(--body-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px;}
+.form-section-title{font-size:.875rem;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+.form-section-title i{color:var(--success);}
+.spec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;}
+.spec-item{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s;font-size:.8125rem;}
+.spec-item:has(input:checked){border-color:var(--success);background:#ECFDF5;color:#065F46;}
+.spec-item input{flex-shrink:0;}
+.upload-drop{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface);}
+.upload-drop:hover{border-color:var(--success);background:#ECFDF5;}
+.upload-drop i{font-size:2rem;color:var(--text-light);margin-bottom:10px;display:block;}
+.field-err{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:7px 12px;color:#991B1B;font-size:.8rem;margin-top:5px;}
+.pw-rule{display:flex;align-items:center;gap:5px;font-size:.78rem;padding:1px 0;}
+.pw-rule.ok{color:#059669;}.pw-rule.fail{color:#DC2626;}
+.pw-match-ok{font-size:.78rem;color:#059669;}.pw-match-fail{font-size:.78rem;color:#DC2626;}
+.qual-bar{font-size:.78rem;margin-top:5px;}
+.qual-bar.ok{color:#059669;}.qual-bar.fail{color:#DC2626;}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-danger text-white text-center py-4">
-                    <i class="fas fa-shield-alt fa-3x mb-2"></i>
-                    <h3>Moderator Application</h3>
-                    <p class="mb-0">Help maintain platform quality</p>
-                </div>
-                <div class="card-body p-5">
-                    <div class="alert alert-info mb-4">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Note:</strong> Moderator accounts require administrator approval. 
-                        You'll receive an email once your application is reviewed.
-                    </div>
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
-                        
-                        <h5 class="mb-3">Account Information</h5>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>{{ form.username.label }}</label>
-                                {{ form.username }}
-                                {% if form.username.errors %}
-                                    <div class="text-danger small">{{ form.username.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label>{{ form.email.label }}</label>
-                                {{ form.email }}
-                                {% if form.email.errors %}
-                                    <div class="text-danger small">{{ form.email.errors }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label>{{ form.institution.label }}</label>
-                            {{ form.institution }}
-                            <small class="form-text text-muted">{{ form.institution.help_text }}</small>
-                            {% if form.institution.errors %}
-                                <div class="text-danger small">{{ form.institution.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <hr class="my-4">
-                        
-                        <h5 class="mb-3">Specialization</h5>
-                        <p class="text-muted">Select the courses you can moderate. You'll only receive notes from these areas.</p>
-                        
-                        <div class="mb-4">
-                            <label class="fw-bold">{{ form.specialization_courses.label }}</label>
-                            <div class="specialization-grid">
-                                {% for course in form.specialization_courses %}
-                                    <div class="form-check">
-                                        {{ course.tag }}
-                                        <label class="form-check-label" for="{{ course.id_for_label }}">
-                                            {{ course.choice_label }}
-                                        </label>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <small class="form-text text-muted">{{ form.specialization_courses.help_text }}</small>
-                            {% if form.specialization_courses.errors %}
-                                <div class="text-danger small">{{ form.specialization_courses.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="fw-bold">{{ form.specialization_subjects.label }} (Optional)</label>
-                            <div class="collapse" id="subjectSpecialization">
-                                <div class="specialization-grid border p-3 rounded">
-                                    {% for subject in form.specialization_subjects %}
-                                        <div class="form-check">
-                                            {{ subject.tag }}
-                                            <label class="form-check-label" for="{{ subject.id_for_label }}">
-                                                {{ subject.choice_label }}
-                                            </label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" 
-                                    data-bs-toggle="collapse" data-bs-target="#subjectSpecialization">
-                                <i class="fas fa-plus"></i> Add Subject-Level Specialization
-                            </button>
-                            <small class="form-text text-muted d-block mt-2">
-                                {{ form.specialization_subjects.help_text }}
-                            </small>
-                            {% if form.specialization_subjects.errors %}
-                                <div class="text-danger small">{{ form.specialization_subjects.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="fw-bold">{{ form.qualifications.label }}</label>
-                            {{ form.qualifications }}
-                            <small class="form-text text-muted">{{ form.qualifications.help_text }}</small>
-                            {% if form.qualifications.errors %}
-                                <div class="text-danger small">{{ form.qualifications.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <hr class="my-4">
-                        
-                        <h5 class="mb-3">Password</h5>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label>{{ form.password1.label }}</label>
-                                {{ form.password1 }}
-                                {% if form.password1.errors %}
-                                    <div class="text-danger small">{{ form.password1.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label>{{ form.password2.label }}</label>
-                                {{ form.password2 }}
-                                {% if form.password2.errors %}
-                                    <div class="text-danger small">{{ form.password2.errors }}</div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-danger w-100 py-3">
-                            <i class="fas fa-paper-plane"></i> Submit Moderator Application
-                        </button>
-                    </form>
-                    
-                    <div class="text-center mt-4">
-                        <p class="text-muted">
-                            <a href="{% url 'core:signup' %}">← Choose different role</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="signup-wrap">
+  <div class="container">
+    <div class="signup-card">
+      <div class="auth-logo" style="background:var(--success);"><i class="fas fa-shield-alt"></i></div>
+      <h1 style="font-size:1.5rem;font-weight:800;color:var(--dark);text-align:center;letter-spacing:-0.03em;margin-bottom:6px;">Apply as Moderator</h1>
+      <p style="font-size:.875rem;color:var(--text-muted);text-align:center;margin-bottom:28px;">Help maintain platform quality. Your application will be reviewed by an admin.</p>
 
-<style>
-    .specialization-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px;
+      <div class="role-tabs">
+        <a href="{% url 'accounts:signup_student' %}" class="role-tab">Student</a>
+        <a href="{% url 'accounts:signup_moderator' %}" class="role-tab active">Moderator</a>
+        <a href="{% url 'accounts:signup_admin' %}" class="role-tab">Admin</a>
+      </div>
+
+      <div class="alert alert-info d-flex gap-2 mb-4" style="font-size:.8rem;">
+        <i class="fas fa-info-circle mt-1 flex-shrink-0"></i>
+        <span>Provide accurate information and valid proof of qualification. Your account will be inactive until an administrator approves your application.</span>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" id="modForm" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger d-flex gap-2 mb-3"><i class="fas fa-exclamation-circle mt-1"></i><div>{{ form.non_field_errors }}</div></div>
+        {% endif %}
+
+        <!-- Account -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-user"></i> Account Information</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Username <span style="color:var(--danger);">*</span></label>
+              {{ form.username }}
+              {% if form.username.errors %}<div class="field-err">{% for e in form.username.errors %}{{ e }}{% endfor %}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email <span style="color:var(--danger);">*</span></label>
+              {{ form.email }}
+              {% if form.email.errors %}<div class="field-err">{% for e in form.email.errors %}{{ e }}{% endfor %}</div>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Qualifications -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-graduation-cap"></i> Qualifications</div>
+          <div class="mb-3">
+            <label class="form-label">Describe your qualifications <span style="color:var(--danger);">*</span></label>
+            {{ form.qualifications }}
+            <div id="qual-bar" class="qual-bar fail"><i class="fas fa-times-circle me-1"></i>Minimum 25 words required</div>
+            <div class="form-text">Explain your education, degrees, certifications and teaching experience</div>
+            {% if form.qualifications.errors %}<div class="field-err">{% for e in form.qualifications.errors %}{{ e }}{% endfor %}</div>{% endif %}
+          </div>
+          <div>
+            <label class="form-label">Qualification Document <span style="color:var(--danger);">*</span></label>
+            <div class="upload-drop" id="docDrop" onclick="document.getElementById('id_qualification_document').click()">
+              <i class="fas fa-file-upload"></i>
+              <p style="font-weight:600;color:var(--dark);margin-bottom:4px;">Click to upload proof of qualification</p>
+              <p style="font-size:.8rem;color:var(--text-muted);margin:0;">Degree certificate, transcript or teaching certificate · PDF, JPG, PNG · Max 5 MB</p>
+              <p id="docName" style="color:var(--success);font-weight:600;margin-top:8px;display:none;"></p>
+            </div>
+            <div style="display:none;">{{ form.qualification_document }}</div>
+            {% if form.qualification_document.errors %}<div class="field-err mt-1">{% for e in form.qualification_document.errors %}{{ e }}{% endfor %}</div>{% endif %}
+          </div>
+        </div>
+
+        <!-- Specialization -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-book"></i> Course Specialization</div>
+          <p style="font-size:.8125rem;color:var(--text-muted);margin-bottom:14px;">Select the courses you can moderate. You'll only be assigned notes from these areas.</p>
+          <div class="spec-grid mb-3">
+            {% for course in form.specialization_courses %}
+            <label class="spec-item">
+              {{ course.tag }} {{ course.choice_label }}
+            </label>
+            {% endfor %}
+          </div>
+          {% if form.specialization_courses.errors %}<div class="field-err">{% for e in form.specialization_courses.errors %}{{ e }}{% endfor %}</div>{% endif %}
+
+          <div class="mt-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#subjSpec">
+              <i class="fas fa-plus"></i> Add Subject-Level Specialization (optional)
+            </button>
+            <div class="collapse mt-3" id="subjSpec">
+              <div class="spec-grid">
+                {% for subject in form.specialization_subjects %}
+                <label class="spec-item">{{ subject.tag }} {{ subject.choice_label }}</label>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-section">
+          <div class="form-section-title"><i class="fas fa-lock"></i> Password</div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Password <span style="color:var(--danger);">*</span></label>
+              {{ form.password1 }}
+              <div id="pw1-fb" class="mt-1"></div>
+              {% if form.password1.errors %}<div class="field-err">{% for e in form.password1.errors %}{{ e }}{% endfor %}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Confirm Password <span style="color:var(--danger);">*</span></label>
+              {{ form.password2 }}
+              <div id="pw2-fb" class="mt-1"></div>
+              {% if form.password2.errors %}<div class="field-err">{% for e in form.password2.errors %}{{ e }}{% endfor %}</div>{% endif %}
+            </div>
+          </div>
+        </div>
+
+        
+        <!-- reCAPTCHA v3 — invisible, scores automatically on submit -->
+        {{ form.captcha }}
+        {% if form.captcha.errors %}
+        <div class="alert alert-danger d-flex gap-2 mb-3" style="font-size:.8rem;">
+          <i class="fas fa-robot mt-1 flex-shrink-0"></i>
+          <span>reCAPTCHA verification failed. Please try again or refresh the page.</span>
+        </div>
+        {% endif %}
+
+<button type="submit" class="btn btn-success w-100 btn-lg"><i class="fas fa-paper-plane"></i> Submit Application</button>
+      </form>
+
+      <div style="text-align:center;font-size:.8125rem;color:var(--text-muted);margin-top:20px;">
+        <p class="mb-1">Want to be a student instead? <a href="{% url 'accounts:signup_student' %}" style="color:var(--primary);font-weight:600;">Sign up here</a></p>
+        <p class="mb-0"><a href="{% url 'core:home' %}" style="color:var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var pw1 = document.getElementById('id_password1');
+  var pw2 = document.getElementById('id_password2');
+  var fb1 = document.getElementById('pw1-fb');
+  var fb2 = document.getElementById('pw2-fb');
+
+  var RULES = [
+    { test: function(v){ return v.length >= 8; },           label: 'At least 8 characters' },
+    { test: function(v){ return /[0-9]/.test(v); },         label: 'At least one number (0-9)' },
+    { test: function(v){ return /[!@#$%^&*()\-_=+\[\]{};:'",.<>\/?`~\\|]/.test(v); }, label: 'At least one special character (!@#$...)' },
+    { test: function(v){ return !/^\d+$/.test(v); },        label: 'Not entirely numbers' },
+  ];
+
+  function renderRules(v) {
+    if (!fb1) return;
+    if (!v) { fb1.innerHTML = ''; return; }
+    fb1.innerHTML = RULES.map(function(r){
+      var ok = r.test(v);
+      return '<div class="pw-rule ' + (ok?'ok':'fail') + '"><i class="fas fa-' + (ok?'check':'times') + '-circle"></i> ' + r.label + '</div>';
+    }).join('');
+  }
+
+  function renderMatch(v) {
+    if (!fb2) return;
+    if (!v || !pw1) { fb2.innerHTML = ''; return; }
+    var ok = pw1.value === v;
+    fb2.innerHTML = '<div class="' + (ok?'pw-match-ok':'pw-match-fail') + '"><i class="fas fa-' + (ok?'check':'times') + '-circle"></i> ' + (ok?'Passwords match':'Passwords do not match') + '</div>';
+  }
+
+  if (pw1) { pw1.addEventListener('input', function(){ renderRules(pw1.value); if (pw2 && pw2.value) renderMatch(pw2.value); }); }
+  if (pw2) pw2.addEventListener('input', function(){ renderMatch(pw2.value); });
+
+  var toggleBtn = document.getElementById('togglePw');
+  var pwIcon    = document.getElementById('pwIcon');
+  if (toggleBtn && pw1) {
+    toggleBtn.addEventListener('click', function(){
+      var isText = pw1.type === 'text';
+      pw1.type = isText ? 'password' : 'text';
+      if (pwIcon) pwIcon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+  }
+
+  var TLD    = {'.con':'.com','.cmo':'.com','.ocm':'.com','.cpm':'.com','.coml':'.com','.ney':'.net','.ogr':'.org','.nte':'.net'};
+  var DOMAIN = {'gmeel.com':'gmail.com','gmial.com':'gmail.com','gamil.com':'gmail.com','gmal.com':'gmail.com','gnail.com':'gmail.com','gmail.con':'gmail.com','yaho.com':'yahoo.com','yahooo.com':'yahoo.com','hotmial.com':'hotmail.com','outlok.com':'outlook.com'};
+
+  function checkEmail(v) {
+    if (!v || v.indexOf('@') === -1) return null;
+    var lo = v.toLowerCase().trim(), at = lo.lastIndexOf('@'), dom = lo.slice(at+1);
+    if (DOMAIN[dom]) return lo.slice(0,at+1)+DOMAIN[dom];
+    var keys = Object.keys(TLD);
+    for (var i=0; i<keys.length; i++) { if (lo.slice(-keys[i].length) === keys[i]) return lo.slice(0,-keys[i].length)+TLD[keys[i]]; }
+    return null;
+  }
+
+  function handleEmail(input) {
+    var sug = checkEmail(input.value);
+    var hint = input.parentNode.querySelector('.ng-email-hint');
+    if (!sug) { if (hint) hint.remove(); return; }
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'ng-email-hint';
+      hint.style.cssText = 'margin-top:6px;padding:8px 12px;background:#FFFBEB;border:1px solid #FCD34D;border-radius:8px;font-size:.82rem;color:#78350F;display:flex;align-items:center;gap:8px;';
+      input.parentNode.insertBefore(hint, input.nextSibling);
     }
-    
-    .form-check {
-        padding: 8px;
-        border-radius: 6px;
-        transition: background 0.2s;
-    }
-    
-    .form-check:hover {
-        background: #f8f9fa;
-    }
-</style>
+    hint.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Did you mean <strong class="ng-sug" style="cursor:pointer;text-decoration:underline;">' + sug + '</strong>?</span>';
+    hint.querySelector('.ng-sug').onclick = function(){ input.value = sug; hint.remove(); };
+  }
+
+  document.querySelectorAll('input[type="email"],input[name="email"]').forEach(function(i){ i.addEventListener('blur', function(){ handleEmail(i); }); });
+})();
+</script>
+<script>
+(function(){
+  var qual = document.getElementById('id_qualifications');
+  var bar  = document.getElementById('qual-bar');
+  if (!qual || !bar) return;
+  function update() {
+    var words = qual.value.trim() ? qual.value.trim().split(/\s+/).length : 0;
+    var ok = words >= 25;
+    bar.className = 'qual-bar ' + (ok ? 'ok' : 'fail');
+    bar.innerHTML = ok
+      ? '<i class="fas fa-check-circle me-1"></i>' + words + ' words \u2014 requirement met'
+      : '<i class="fas fa-times-circle me-1"></i>' + words + '/25 words \u2014 ' + (25-words) + ' more needed';
+  }
+  qual.addEventListener('input', update);
+  update();
+})();
+</script>
+<script>
+(function(){
+  var docInput = document.getElementById('id_qualification_document');
+  var docName  = document.getElementById('docName');
+  if (docInput) {
+    docInput.addEventListener('change', function(){
+      if (docInput.files[0]) { docName.textContent = docInput.files[0].name; docName.style.display = 'block'; }
+    });
+  }
+})();
+</script>
 {% endblock %}

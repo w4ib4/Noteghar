@@ -1,294 +1,137 @@
 {% extends 'base.html' %}
-
-{% block title %}Dashboard - NoteGhar{% endblock %}
+{% block title %}Dashboard — NoteGhar{% endblock %}
 
 {% block extra_css %}
 <style>
-    .dashboard-header {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-        color: white;
-        padding: 40px 0;
-        margin-bottom: 30px;
-    }
-    
-    .stat-card {
-        background: white;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        padding: 24px;
-        height: 100%;
-        transition: all 0.3s;
-    }
-    
-    .stat-card:hover {
-        border-color: var(--primary);
-        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.1);
-    }
-    
-    .stat-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        margin-bottom: 12px;
-    }
-    
-    .stat-icon.blue {
-        background: #DBEAFE;
-        color: var(--primary);
-    }
-    
-    .stat-icon.green {
-        background: #D1FAE5;
-        color: var(--secondary);
-    }
-    
-    .stat-icon.amber {
-        background: #FEF3C7;
-        color: var(--accent);
-    }
-    
-    .stat-icon.red {
-        background: #FEE2E2;
-        color: #DC2626;
-    }
-    
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin: 8px 0 4px 0;
-    }
-    
-    .stat-label {
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-    
-    .dashboard-card {
-        background: white;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 24px;
-    }
-    
-    .card-header-custom {
-        display: flex;
-        justify-content: between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    
-    .card-header-custom h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
-    }
-    
-    .note-item {
-        padding: 16px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        margin-bottom: 12px;
-        transition: all 0.2s;
-    }
-    
-    .note-item:hover {
-        border-color: var(--primary);
-        background: var(--light);
-    }
-    
-    .note-item h5 {
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--dark);
-        margin-bottom: 4px;
-    }
-    
-    .note-item small {
-        color: var(--text-muted);
-    }
-    
-    .quick-action-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        border: 2px dashed var(--border);
-        border-radius: 12px;
-        text-decoration: none;
-        color: var(--dark);
-        font-weight: 600;
-        transition: all 0.3s;
-        height: 100%;
-    }
-    
-    .quick-action-btn:hover {
-        border-color: var(--primary);
-        background: var(--light);
-        color: var(--primary);
-        border-style: solid;
-    }
-    
-    .quick-action-btn i {
-        font-size: 2rem;
-        margin-bottom: 8px;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--text-muted);
-    }
-    
-    .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 16px;
-        opacity: 0.5;
-    }
+.dash-header { background: var(--dark); padding: 40px 0; margin-bottom: 32px; }
+.dash-header h1 { color: #F1F5F9; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+.dash-header p  { color: #94A3B8; font-size: .9rem; margin: 0; }
+.activity-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.activity-item:last-child { border: none; }
+.activity-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .875rem; flex-shrink: 0; }
+.activity-item .title { font-weight: 600; font-size: .875rem; color: var(--dark); margin-bottom: 2px; }
+.activity-item .meta  { font-size: .75rem; color: var(--text-muted); }
+.card-section-title { font-size: .875rem; font-weight: 700; color: var(--dark); display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Dashboard Header -->
-<div class="dashboard-header">
-    <div class="container">
-        <h1 class="mb-2">Welcome back, {{ user.username }}! 👋</h1>
-        <p class="mb-0" style="opacity: 0.9;">Here's what's happening with your notes</p>
+<div class="dash-header">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1>{% if is_new_user %}Welcome, {{ user.first_name|default:user.username }}! 👋{% else %}Welcome back, {{ user.first_name|default:user.username }}! 👋{% endif %}</h1>
+            <p>{% if is_new_user %}Start by uploading your first note or browsing what others have shared.{% else %}Here's an overview of your activity on NoteGhar{% endif %}</p>
+        </div>
+        <a href="{% url 'notes:upload' %}" class="btn btn-primary"><i class="fas fa-upload"></i> Upload Note</a>
     </div>
 </div>
 
 <div class="container mb-5">
-    <!-- Stats Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3 col-sm-6">
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="fas fa-file-alt"></i>
-                </div>
+                <div class="stat-icon blue"><i class="fas fa-file-alt"></i></div>
                 <div class="stat-value">{{ total_notes }}</div>
                 <div class="stat-label">Total Uploads</div>
             </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon green">
-                    <i class="fas fa-check-circle"></i>
-                </div>
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
                 <div class="stat-value">{{ approved_notes }}</div>
-                <div class="stat-label">Approved Notes</div>
+                <div class="stat-label">Approved</div>
             </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon amber">
-                    <i class="fas fa-clock"></i>
-                </div>
+                <div class="stat-icon amber"><i class="fas fa-clock"></i></div>
                 <div class="stat-value">{{ pending_notes }}</div>
                 <div class="stat-label">Pending Review</div>
             </div>
         </div>
-        
-        <div class="col-md-3 col-sm-6">
+        <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-icon blue">
-                    <i class="fas fa-download"></i>
-                </div>
+                <div class="stat-icon blue"><i class="fas fa-download"></i></div>
                 <div class="stat-value">{{ total_downloads }}</div>
                 <div class="stat-label">Total Downloads</div>
             </div>
         </div>
     </div>
-    
+
     <!-- Quick Actions -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <a href="{% url 'notes:upload' %}" class="quick-action-btn">
-                <div class="text-center">
-                    <i class="fas fa-cloud-upload-alt d-block"></i>
-                    Upload New Note
-                </div>
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <a href="{% url 'notes:upload' %}" class="quick-action">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Upload Note</span>
             </a>
         </div>
-        <div class="col-md-4">
-            <a href="{% url 'notes:list' %}" class="quick-action-btn">
-                <div class="text-center">
-                    <i class="fas fa-search d-block"></i>
-                    Browse Notes
-                </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'notes:list' %}" class="quick-action">
+                <i class="fas fa-compass"></i>
+                <span>Browse Notes</span>
             </a>
         </div>
-        <div class="col-md-4">
-            <a href="{% url 'notes:my_notes' %}" class="quick-action-btn">
-                <div class="text-center">
-                    <i class="fas fa-folder-open d-block"></i>
-                    My Uploads
-                </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'notes:my_bookmarks' %}" class="quick-action">
+                <i class="fas fa-bookmark"></i>
+                <span>My Bookmarks</span>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'notes:request_board' %}" class="quick-action">
+                <i class="fas fa-question-circle"></i>
+                <span>Note Requests</span>
             </a>
         </div>
     </div>
-    
-    <div class="row">
-        <!-- Recent Activity -->
-        <div class="col-lg-8">
-            <!-- Recent Downloads -->
-            <div class="dashboard-card">
-                <div class="card-header-custom">
-                    <h3><i class="fas fa-download text-primary me-2"></i>Recent Downloads</h3>
-                </div>
-                
-                {% if recent_downloads %}
-                    {% for download in recent_downloads %}
-                    <div class="note-item">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h5>{{ download.note.title }}</h5>
-                                <small>
-                                    <i class="fas fa-book text-muted me-1"></i> {{ download.note.subject.name }}
-                                    <span class="mx-2">•</span>
-                                    <i class="fas fa-calendar text-muted me-1"></i> {{ download.downloaded_at|date:"M d, Y" }}
-                                </small>
-                            </div>
-                            <a href="{% url 'notes:detail' download.note.pk %}" class="btn btn-sm btn-outline-primary">
-                                View
-                            </a>
-                        </div>
+
+    <div class="row g-4">
+        <!-- Recent Downloads -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="card-section-title">
+                        <span style="background: var(--primary-light); color: var(--primary); width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-download" style="font-size:.75rem;"></i></span>
+                        Recent Downloads
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-download"></i>
-                        <p>You haven't downloaded any notes yet.</p>
-                        <a href="{% url 'notes:list' %}" class="btn btn-primary btn-sm">Browse Notes</a>
-                    </div>
-                {% endif %}
-            </div>
-            
-            <!-- Recent Uploads -->
-            <div class="dashboard-card">
-                <div class="card-header-custom">
-                    <h3><i class="fas fa-upload text-success me-2"></i>Your Recent Uploads</h3>
-                </div>
-                
-                {% if recent_uploads %}
-                    {% for note in recent_uploads %}
-                    <div class="note-item">
-                        <div class="d-flex justify-content-between align-items-start">
+                    {% if recent_downloads %}
+                        {% for dl in recent_downloads %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: #EFF6FF; color: var(--primary);"><i class="fas fa-file-alt"></i></div>
                             <div class="flex-grow-1">
-                                <h5>{{ note.title }}</h5>
-                                <small>
-                                    <i class="fas fa-book text-muted me-1"></i> {{ note.subject.name }}
-                                    <span class="mx-2">•</span>
-                                    <i class="fas fa-download text-muted me-1"></i> {{ note.download_count }} downloads
-                                </small>
+                                <div class="title">{{ dl.note.title|truncatewords:8 }}</div>
+                                <div class="meta"><i class="fas fa-book me-1"></i>{{ dl.note.subject.name }} · {{ dl.downloaded_at|date:"M d" }}</div>
+                            </div>
+                            <a href="{% url 'notes:detail' dl.note.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state" style="padding: 40px 0;">
+                            <div class="empty-state-icon" style="width:48px;height:48px;font-size:1.25rem;"><i class="fas fa-download"></i></div>
+                            <p style="font-size:.875rem;">No downloads yet. <a href="{% url 'notes:list' %}">Browse notes</a></p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Uploads -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="card-section-title">
+                        <span style="background: #ECFDF5; color: var(--success); width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-upload" style="font-size:.75rem;"></i></span>
+                        Your Recent Uploads
+                    </div>
+                    {% if recent_uploads %}
+                        {% for note in recent_uploads %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: #ECFDF5; color: var(--success);"><i class="fas fa-file-alt"></i></div>
+                            <div class="flex-grow-1">
+                                <div class="title">{{ note.title|truncatewords:8 }}</div>
+                                <div class="meta"><i class="fas fa-download me-1"></i>{{ note.download_count }} downloads · {{ note.created_at|date:"M d" }}</div>
                             </div>
                             <div>
                                 {% if note.status == 'approved' %}
@@ -300,32 +143,66 @@
                                 {% endif %}
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-file-upload"></i>
-                        <p>You haven't uploaded any notes yet.</p>
-                        <a href="{% url 'notes:upload' %}" class="btn btn-success btn-sm">Upload Now</a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-        
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Profile Completion -->
-            <div class="dashboard-card" style="background: linear-gradient(135deg, #DBEAFE 0%, #E0E7FF 100%); border: none;">
-                <div class="text-center">
-                    <i class="fas fa-user-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 12px;"></i>
-                    <h4 style="color: var(--dark); margin-bottom: 8px;">Complete Your Profile</h4>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
-                        Add more information to help others trust your uploads
-                    </p>
-                    <a href="{% url 'accounts:profile' %}" class="btn btn-primary btn-sm">Edit Profile</a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state" style="padding: 40px 0;">
+                            <div class="empty-state-icon" style="width:48px;height:48px;font-size:1.25rem;"><i class="fas fa-file-upload"></i></div>
+                            <p style="font-size:.875rem;">No uploads yet. <a href="{% url 'notes:upload' %}">Upload now</a></p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
+
+        <!-- Popular Notes -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-section-title">
+                        <span style="background: #FFF7ED; color: var(--warning); width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-fire" style="font-size:.75rem;"></i></span>
+                        Popular Notes Right Now
+                    </div>
+                    <div class="row g-3">
+                        {% for note in popular_notes %}
+                        <div class="col-md-6">
+                            <div class="note-card" style="min-height: unset;">
+                                <div class="note-card-title">{{ note.title|truncatewords:6 }}</div>
+                                <div class="note-card-meta">{{ note.subject.name }}</div>
+                                <div class="note-card-footer d-flex justify-content-between align-items-center">
+                                    <small class="text-muted"><i class="fas fa-download"></i> {{ note.download_count }}</small>
+                                    <a href="{% url 'notes:detail' note.pk %}" class="btn btn-primary btn-sm">View</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No popular notes yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Become a Moderator -->
+        <div class="col-lg-4">
+            <div class="card h-100" style="border: 1.5px solid #6EE7B7; background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);">
+                <div class="card-body text-center d-flex flex-column justify-content-center">
+                    <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: var(--success); margin-bottom: 12px;"></i>
+                    <h5 style="font-weight: 700; color: var(--dark); margin-bottom: 8px;">Become a Moderator</h5>
+                    <p style="color: var(--text-muted); font-size: .875rem; margin-bottom: 16px;">
+                        Help maintain quality on NoteGhar. Review notes in your subject area and earn the Moderator badge.
+                    </p>
+                    <div style="font-size:.8rem; color:#065F46; background:#fff; border-radius:8px; padding:10px; margin-bottom:14px; text-align:left;">
+                        <div class="mb-1"><i class="fas fa-check-circle me-1"></i> Choose your subject specialization</div>
+                        <div class="mb-1"><i class="fas fa-check-circle me-1"></i> Upload proof of qualification</div>
+                        <div><i class="fas fa-check-circle me-1"></i> Pending admin approval</div>
+                    </div>
+                    <a href="{% url 'accounts:signup_moderator' %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-paper-plane me-1"></i> Apply Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

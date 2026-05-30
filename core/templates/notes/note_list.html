@@ -1,107 +1,91 @@
 {% extends 'base.html' %}
+{% block title %}Browse Notes — NoteGhar{% endblock %}
 
-{% block title %}Browse Notes - NoteGhar{% endblock %}
-
-{% block content %}
-<div class="container my-5">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2><i class="fas fa-book-open"></i> Browse Notes</h2>
-            <p class="text-muted">Total: {{ total_notes }} notes available</p>
-        </div>
-    </div>
-    
-    <!-- Search and Filter -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" id="searchForm">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        {{ form.query }}
-                    </div>
-                    <div class="col-md-3">
-                        {{ form.course }}
-                    </div>
-                    <div class="col-md-3">
-                        {{ form.semester }}
-                    </div>
-                    <div class="col-md-3">
-                        {{ form.subject }}
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Search
-                    </button>
-                    <a href="{% url 'notes:list' %}" class="btn btn-secondary">
-                        <i class="fas fa-redo"></i> Clear
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Notes Grid -->
-    {% if notes %}
-        <div class="row">
-            {% for note in notes %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow-sm hover-card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="badge bg-primary">{{ note.get_file_extension }}</span>
-                            <span class="badge bg-secondary">{{ note.get_file_size_mb }} MB</span>
-                        </div>
-                        
-                        <h5 class="card-title">{{ note.title|truncatewords:8 }}</h5>
-                        
-                        <p class="card-text text-muted small">
-                            {{ note.description|truncatewords:15 }}
-                        </p>
-                        
-                        <div class="mb-2">
-                            <small class="text-muted">
-                                <i class="fas fa-graduation-cap"></i> {{ note.course.code }}<br>
-                                <i class="fas fa-book"></i> {{ note.subject.name }}<br>
-                                <i class="fas fa-calendar"></i> Semester {{ note.semester.number }}
-                            </small>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="fas fa-download"></i> {{ note.download_count }}
-                                <i class="fas fa-eye ms-2"></i> {{ note.view_count }}
-                            </small>
-                            <a href="{% url 'notes:detail' note.pk %}" class="btn btn-sm btn-primary">
-                                View Details <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        
-                        <div class="mt-2">
-                            <small class="text-muted">
-                                by {{ note.uploaded_by.username }}
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-info text-center">
-            <i class="fas fa-info-circle fa-2x mb-2"></i>
-            <p class="mb-0">No notes found matching your criteria.</p>
-        </div>
-    {% endif %}
-</div>
-
+{% block extra_css %}
 <style>
-    .hover-card {
-        transition: transform 0.2s;
-    }
-    .hover-card:hover {
-        transform: translateY(-5px);
-    }
+.search-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 28px; box-shadow: var(--shadow-sm); }
+.file-ext-icon { width: 38px; height: 38px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .875rem; font-weight: 700; flex-shrink: 0; }
+.note-list-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; display: flex; align-items: flex-start; gap: 16px; transition: all .18s; }
+.note-list-item:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.note-list-item .title { font-weight: 700; font-size: .9375rem; color: var(--dark); margin-bottom: 4px; }
+.note-list-item .meta  { font-size: .78rem; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.note-list-item .meta i { margin-right: 3px; }
+.note-list-item .actions { margin-left: auto; flex-shrink: 0; display: flex; gap: 8px; align-items: center; }
+.result-count { font-size: .875rem; color: var(--text-muted); margin-bottom: 16px; }
 </style>
 {% endblock %}
 
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title"><i class="fas fa-compass" style="color: var(--primary); margin-right: 10px;"></i>Browse Notes</h1>
+        <p class="page-subtitle">Discover quality-reviewed academic resources from students across Nepal</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <form method="get" id="searchForm">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: var(--body-bg); border: 1.5px solid var(--border); border-right: none; border-radius: var(--radius-md) 0 0 var(--radius-md); color: var(--text-muted);"><i class="fas fa-search"></i></span>
+                        <input type="text" name="query" class="form-control" placeholder="Search notes..." value="{{ request.GET.query }}" style="border-left: none; border-radius: 0 var(--radius-md) var(--radius-md) 0;">
+                    </div>
+                </div>
+                <div class="col-md-2">{{ form.course }}</div>
+                <div class="col-md-2">{{ form.semester }}</div>
+                <div class="col-md-2">{{ form.subject }}</div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1"><i class="fas fa-search"></i> Search</button>
+                    <a href="{% url 'notes:list' %}" class="btn btn-secondary"><i class="fas fa-redo"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <p class="result-count">Showing <strong>{{ total_notes }}</strong> note{{ total_notes|pluralize }}</p>
+
+    <!-- Notes List -->
+    {% if notes %}
+    <div class="d-flex flex-column gap-3">
+        {% for note in notes %}
+        <div class="note-list-item">
+            <div class="file-ext-icon {% if note.get_file_extension == 'PDF' %}pdf{% elif note.get_file_extension == 'DOCX' or note.get_file_extension == 'DOC' %}docx{% elif note.get_file_extension == 'PPTX' or note.get_file_extension == 'PPT' %}pptx{% else %}default{% endif %} file-badge">
+                <i class="fas fa-file"></i>
+            </div>
+            <div class="flex-grow-1 min-width-0">
+                <div class="title">{{ note.title|truncatewords:12 }}</div>
+                <div class="meta">
+                    <span><i class="fas fa-graduation-cap"></i>{{ note.course.code }}</span>
+                    <span><i class="fas fa-book"></i>{{ note.subject.name }}</span>
+                    <span><i class="fas fa-layer-group"></i>Sem {{ note.semester.number }}</span>
+                    <span><i class="fas fa-download"></i>{{ note.download_count }}</span>
+                    <span><i class="fas fa-eye"></i>{{ note.view_count }}</span>
+                    <span><i class="fas fa-user"></i>{{ note.uploaded_by.username }}</span>
+                    <span class="badge {% if note.get_file_extension == 'PDF' %}bg-danger{% elif note.get_file_extension == 'DOCX' or note.get_file_extension == 'DOC' %}bg-primary{% else %}bg-warning text-dark{% endif %}">{{ note.get_file_extension }}</span>
+                    <span style="color: var(--text-light); font-size: .72rem;">{{ note.get_file_size_mb }} MB</span>
+                </div>
+                {% if note.description %}
+                <p class="mb-0 mt-1" style="font-size: .8rem; color: var(--text-muted);">{{ note.description|truncatewords:18 }}</p>
+                {% endif %}
+            </div>
+            <div class="actions">
+                <a href="{% url 'notes:detail' note.pk %}" class="btn btn-primary btn-sm">View <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon"><i class="fas fa-search"></i></div>
+        <h5>No notes found</h5>
+        <p>Try different filters or upload the first note for this topic.</p>
+        {% if user.is_authenticated and user.role == 'student' %}
+        <a href="{% url 'notes:upload' %}" class="btn btn-primary mt-2"><i class="fas fa-upload"></i> Upload a Note</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

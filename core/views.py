@@ -1,13 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from notes.models import Note, Download
 from django.db.models import Count
 
 def home_view(request):
     """
-    Homepage view - shows landing page for guests, dashboard for logged-in users
+    Homepage view - shows landing page for guests, dashboard for logged-in users.
+    Redirects moderators and admins to their own dashboards.
     """
     if request.user.is_authenticated:
+        user = request.user
+        if user.is_superuser or getattr(user, 'role', None) == 'admin':
+            return redirect('admin_dashboard')
+        if getattr(user, 'role', None) == 'moderator':
+            return redirect('moderation:dashboard')
         return dashboard_view(request)
     return render(request, 'core/home.html')
 
@@ -38,6 +44,9 @@ def dashboard_view(request):
     # Most downloaded notes 
     popular_notes = Note.objects.filter(status='approved').order_by('-download_count')[:5]
     
+    # Determine greeting — new user if no downloads and no uploads
+    is_new_user = (total_notes == 0 and not recent_downloads.exists())
+
     context = {
         'total_notes': total_notes,
         'approved_notes': approved_notes,
@@ -47,6 +56,7 @@ def dashboard_view(request):
         'recent_downloads': recent_downloads,
         'recent_uploads': recent_uploads,
         'popular_notes': popular_notes,
+        'is_new_user': is_new_user,
     }
     
     return render(request, 'core/dashboard.html', context)

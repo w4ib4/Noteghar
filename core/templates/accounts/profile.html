@@ -1,78 +1,96 @@
 {% extends 'base.html' %}
+{% block title %}Profile — NoteGhar{% endblock %}
 
-{% block title %}Profile - NoteGhar{% endblock %}
+{% block extra_css %}
+<style>
+.profile-header { background: var(--dark); padding: 48px 0 80px; }
+.profile-avatar { width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem; font-weight: 800; border: 3px solid rgba(255,255,255,.2); }
+.profile-avatar img { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; }
+.profile-meta { color: rgba(255,255,255,.75); font-size: .875rem; }
+.profile-name { color: #F1F5F9; font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; margin: 10px 0 4px; }
+.role-pill { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: rgba(37,99,235,.3); color: #93C5FD; }
+.profile-body { margin-top: -48px; }
+.stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; text-align: center; }
+.stat-pill .n { font-size: 1.375rem; font-weight: 800; color: var(--dark); }
+.stat-pill .l { font-size: .75rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+.edit-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                    {% else %}
-                        <i class="fas fa-user-circle fa-7x text-secondary mb-3"></i>
-                    {% endif %}
-                    <h4>{{ user.username }}</h4>
-                    <p class="text-muted">{{ user.get_role_display }}</p>
-                    <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
-                    {% if user.institution %}
-                        <p><i class="fas fa-graduation-cap"></i> {{ user.institution }}</p>
-                    {% endif %}
+<!-- Profile Header -->
+<div class="profile-header">
+    <div class="container">
+        <div class="d-flex align-items-center gap-4">
+            <div class="profile-avatar">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" alt="Avatar">
+                {% else %}
+                    {{ user.username|slice:":1"|upper }}
+                {% endif %}
+            </div>
+            <div>
+                <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                <div class="d-flex align-items-center gap-10 flex-wrap" style="gap: 10px;">
+                    <span class="role-pill"><i class="fas fa-user"></i> {{ user.get_role_display }}</span>
+                    <span class="profile-meta"><i class="fas fa-envelope me-1"></i>{{ user.email }}</span>
+                    {% if user.institution %}<span class="profile-meta"><i class="fas fa-graduation-cap me-1"></i>{{ user.institution }}</span>{% endif %}
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0">Edit Profile</h5>
+    </div>
+</div>
+
+<div class="container mb-5 profile-body">
+    <!-- Stats row -->
+    {% if stats %}
+    <div class="row g-3 mb-4">
+        {% if user.role == 'student' %}
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n">{{ stats.total_uploads }}</div><div class="l">Total Uploads</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n" style="color: var(--success);">{{ stats.approved_uploads }}</div><div class="l">Approved</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n" style="color: var(--warning);">{{ stats.pending_uploads }}</div><div class="l">Pending</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n" style="color: var(--primary);">{{ stats.my_downloads }}</div><div class="l">My Downloads</div></div></div>
+        {% elif user.role == 'moderator' %}
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n">{{ stats.total_actions }}</div><div class="l">Total Actions</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n" style="color: var(--success);">{{ stats.approvals }}</div><div class="l">Approvals</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n" style="color: var(--danger);">{{ stats.rejections }}</div><div class="l">Rejections</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-pill"><div class="n" style="color: var(--warning);">{{ stats.removals }}</div><div class="l">Removals</div></div></div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Edit form -->
+    <div class="edit-card">
+        <h5 style="font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-edit" style="color: var(--primary);"></i> Edit Profile</h5>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">First Name</label>{{ form.first_name }}
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                {{ form.first_name.label_tag }}
-                                {{ form.first_name }}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                {{ form.last_name.label_tag }}
-                                {{ form.last_name }}
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.email.label_tag }}
-                            {{ form.email }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.phone.label_tag }}
-                            {{ form.phone }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.institution.label_tag }}
-                            {{ form.institution }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.bio.label_tag }}
-                            {{ form.bio }}
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.profile_picture.label_tag }}
-                            {{ form.profile_picture }}
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary">Update Profile</button>
-                    </form>
+                <div class="col-md-6">
+                    <label class="form-label">Last Name</label>{{ form.last_name }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>{{ form.email }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Phone</label>{{ form.phone }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Institution</label>{{ form.institution }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Bio</label>{{ form.bio }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Profile Picture</label>{{ form.profile_picture }}
+                </div>
+                <div class="col-12 pt-2">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 {% endblock %}

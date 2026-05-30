@@ -1,7 +1,8 @@
 from django.urls import path
 from django.views.generic import RedirectView, TemplateView
 from .views import (
-    StudentSignupView, ModeratorSignupView, AdminSignupView, 
+    StudentSignupView, ModeratorSignupView, AdminSignupView,
+    student_login_view, moderator_login_view, admin_login_view,
     profile_view, signup_select_view
 )
 
@@ -17,9 +18,9 @@ urlpatterns = [
     path('signup/admin/', AdminSignupView.as_view(), name='signup_admin'),
     
     # Role-based login pages
-    path('login/student/', TemplateView.as_view(template_name='accounts/login_student.html'), name='student_login'),
-    path('login/moderator/', TemplateView.as_view(template_name='accounts/login_moderator.html'), name='moderator_login'),
-    path('login/admin/', TemplateView.as_view(template_name='accounts/login_admin.html'), name='admin_login'),
+    path('login/student/',   student_login_view,   name='student_login'),
+    path('login/moderator/', moderator_login_view, name='moderator_login'),
+    path('login/admin/',     admin_login_view,     name='admin_login'),
     
     # Profile
     path('profile/', profile_view, name='profile'),

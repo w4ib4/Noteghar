@@ -1,41 +1,20 @@
 from django import forms
-from .models import Note, Course, Semester, Subject
-from .models import Rating, Report
+from .models import Note, Course, Semester, Subject, Rating, Report
 
 class NoteUploadForm(forms.ModelForm):
-    """
-    Form for uploading notes
-    """
+    """Form for uploading notes"""
+    
     class Meta:
         model = Note
-        fields = ('title', 'description', 'course', 'semester', 'subject', 'file', 'tags')
+        fields = ('title', 'description', 'course', 'semester', 'subject', 'file')
         widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter note title'
-            }),
-            'description': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Describe the content of these notes'
-            }),
-            'course': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'semester': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'subject': forms.Select(attrs={
-                'class': 'form-control',
-            }),
-            'file': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': '.pdf,.doc,.docx,.ppt,.pptx'
-            }),
-            'tags': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'e.g., important, midterm, finals'
-            }),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter note title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'course': forms.Select(attrs={'class': 'form-control'}),
+            'semester': forms.Select(attrs={'class': 'form-control'}),
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'file': forms.FileInput(attrs={'class': 'form-control', 'accept': '.pdf,.doc,.docx,.ppt,.pptx'}),
+
         }
     
     def __init__(self, *args, **kwargs):
@@ -47,22 +26,15 @@ class NoteUploadForm(forms.ModelForm):
                 course_id = int(self.data.get('course'))
                 semester_id = int(self.data.get('semester'))
                 self.fields['subject'].queryset = Subject.objects.filter(
-                    course_id=course_id, 
-                    semester_id=semester_id
+                    course_id=course_id, semester_id=semester_id
                 ).order_by('name')
             except (ValueError, TypeError):
                 pass
-        elif self.instance.pk:
-            self.fields['subject'].queryset = self.instance.course.subjects.filter(
-                semester=self.instance.semester
-            )
     
     def clean_file(self):
         file = self.cleaned_data.get('file')
-        if file:
-            # Check file size (max 10MB)
-            if file.size > 10 * 1024 * 1024:
-                raise forms.ValidationError('File size must be under 10MB')
+        if file and file.size > 10 * 1024 * 1024:
+            raise forms.ValidationError('File size must be under 10MB')
         return file
     
     def save(self, commit=True):
@@ -75,67 +47,30 @@ class NoteUploadForm(forms.ModelForm):
 
 
 class NoteSearchForm(forms.Form):
-    """
-    Form for searching notes
-    """
-    query = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Search notes...'
-        })
-    )
-    course = forms.ModelChoiceField(
-        queryset=Course.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label="All Courses"
-    )
-    semester = forms.ModelChoiceField(
-        queryset=Semester.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label="All Semesters"
-    )
-    subject = forms.ModelChoiceField(
-        queryset=Subject.objects.all(),
-        required=False,
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        empty_label="All Subjects"
-    )
+    """Form for searching notes"""
+    query = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Search notes...'}))
+    course = forms.ModelChoiceField(queryset=Course.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}), empty_label="All Courses")
+    semester = forms.ModelChoiceField(queryset=Semester.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}), empty_label="All Semesters")
+    subject = forms.ModelChoiceField(queryset=Subject.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}), empty_label="All Subjects")
+
 
 class RatingForm(forms.ModelForm):
-        """
-        Form for rating notes
-        """
-        class Meta:
-            model = Rating
-            fields = ['rating', 'review']
-            widgets = {
-                'rating': forms.Select(
-                    choices=[(i, f'{i} Stars') for i in range(1, 6)],
-                    attrs={'class': 'form-control'}
-                ),
-                'review': forms.Textarea(attrs={
-                    'class': 'form-control',
-                    'rows': 4,
-                    'placeholder': 'Share your thoughts about this note (optional)'
-                }),
-            }
+    """Form for rating notes"""
+    class Meta:
+        model = Rating
+        fields = ['rating', 'review']
+        widgets = {
+            'rating': forms.Select(choices=[(i, f'{i} Stars') for i in range(1, 6)], attrs={'class': 'form-control'}),
+            'review': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Share your thoughts (optional)'}),
+        }
 
 
 class ReportForm(forms.ModelForm):
-    """
-    Form for reporting notes
-    """
+    """Form for reporting notes"""
     class Meta:
         model = Report
         fields = ['reason', 'description']
         widgets = {
             'reason': forms.Select(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Please describe the issue in detail'
-            }),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe the issue'}),
         }

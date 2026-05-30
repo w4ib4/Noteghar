@@ -1,95 +1,171 @@
 {% extends 'base.html' %}
+{% block title %}Admin Registration — NoteGhar{% endblock %}
 
-{% block title %}Admin Registration{% endblock %}
+{% block extra_css %}
+<style>
+.auth-wrap{min-height:calc(100vh - 64px - 200px);display:flex;align-items:flex-start;padding:48px 0;}
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:40px;box-shadow:var(--shadow-lg);max-width:480px;width:100%;margin:0 auto;}
+.auth-logo{width:52px;height:52px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.375rem;margin:0 auto 20px;}
+.role-tabs{display:flex;gap:6px;margin-bottom:28px;}
+.role-tab{flex:1;text-align:center;padding:9px 6px;border-radius:var(--radius-md);border:1.5px solid var(--border);font-size:.8rem;font-weight:600;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+.role-tab:hover,.role-tab.active{border-color:var(--dark);color:var(--dark);background:var(--body-bg);}
+.field-err{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:7px 12px;color:#991B1B;font-size:.8rem;margin-top:5px;}
+.pw-rule{display:flex;align-items:center;gap:5px;font-size:.78rem;padding:1px 0;}
+.pw-rule.ok{color:#059669;}.pw-rule.fail{color:#DC2626;}
+.pw-match-ok{font-size:.78rem;color:#059669;}.pw-match-fail{font-size:.78rem;color:#DC2626;}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg border-dark">
-                <div class="card-header bg-dark text-white text-center py-4">
-                    <i class="fas fa-user-cog fa-3x mb-2"></i>
-                    <h3>Administrator Registration</h3>
-                    <p class="mb-0 small">Restricted Access</p>
-                </div>
-                <div class="card-body p-5">
-                    <div class="alert alert-danger mb-4">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Restricted:</strong> Admin registration requires a valid registration key. 
-                        Contact the system administrator if you need access.
-                    </div>
-                    
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
-                        
-                        <div class="mb-3">
-                            <label>{{ form.username.label }}</label>
-                            {{ form.username }}
-                            {% if form.username.errors %}
-                                <div class="text-danger small">{{ form.username.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label>{{ form.email.label }}</label>
-                            {{ form.email }}
-                            {% if form.email.errors %}
-                                <div class="text-danger small">{{ form.email.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label>{{ form.institution.label }}</label>
-                            {{ form.institution }}
-                            {% if form.institution.errors %}
-                                <div class="text-danger small">{{ form.institution.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label>{{ form.admin_key.label }}</label>
-                            {{ form.admin_key }}
-                            <small class="form-text text-muted">{{ form.admin_key.help_text }}</small>
-                            {% if form.admin_key.errors %}
-                                <div class="text-danger small">{{ form.admin_key.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label>{{ form.password1.label }}</label>
-                            {{ form.password1 }}
-                            {% if form.password1.errors %}
-                                <div class="text-danger small">{{ form.password1.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label>{{ form.password2.label }}</label>
-                            {{ form.password2 }}
-                            {% if form.password2.errors %}
-                                <div class="text-danger small">{{ form.password2.errors }}</div>
-                            {% endif %}
-                        </div>
-                        
-                        <button type="submit" class="btn btn-dark w-100 py-3">
-                            <i class="fas fa-key"></i> Create Admin Account
-                        </button>
-                    </form>
-                    
-                    <div class="text-center mt-4">
-                        <p class="text-muted">
-                            <a href="{% url 'core:signup' %}">← Back to role selection</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
+<div class="auth-wrap">
+  <div class="container">
+    <div class="auth-card">
+      <div class="auth-logo" style="background:var(--dark);"><i class="fas fa-user-cog"></i></div>
+      <h1 style="font-size:1.5rem;font-weight:800;color:var(--dark);text-align:center;letter-spacing:-0.03em;margin-bottom:6px;">Admin Registration</h1>
+      <p style="font-size:.875rem;color:var(--text-muted);text-align:center;margin-bottom:28px;">Restricted access — requires a valid registration key</p>
+
+      <div class="role-tabs">
+        <a href="{% url 'accounts:signup_student' %}" class="role-tab">Student</a>
+        <a href="{% url 'accounts:signup_moderator' %}" class="role-tab">Moderator</a>
+        <a href="{% url 'accounts:signup_admin' %}" class="role-tab active">Admin</a>
+      </div>
+
+      <div class="alert alert-danger d-flex gap-2 mb-4" style="font-size:.8rem;">
+        <i class="fas fa-shield-alt mt-1 flex-shrink-0"></i>
+        <span>Admin registration requires a valid registration key. Contact the system administrator if you need access.</span>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger d-flex gap-2 mb-3"><i class="fas fa-exclamation-circle mt-1"></i><div>{{ form.non_field_errors }}</div></div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Username <span style="color:var(--danger);">*</span></label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="field-err">{% for e in form.username.errors %}{{ e }}{% endfor %}</div>{% endif %}
         </div>
+        <div class="mb-3">
+          <label class="form-label">Email <span style="color:var(--danger);">*</span></label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="field-err">{% for e in form.email.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Institution <span style="color:var(--danger);">*</span></label>
+          {{ form.institution }}
+          {% if form.institution.errors %}<div class="field-err">{% for e in form.institution.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Admin Registration Key <span style="color:var(--danger);">*</span></label>
+          {{ form.admin_key }}
+          <div class="form-text">{{ form.admin_key.help_text }}</div>
+          {% if form.admin_key.errors %}<div class="field-err">{% for e in form.admin_key.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password <span style="color:var(--danger);">*</span></label>
+          {{ form.password1 }}
+          <div id="pw1-fb" class="mt-1"></div>
+          {% if form.password1.errors %}<div class="field-err">{% for e in form.password1.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Confirm Password <span style="color:var(--danger);">*</span></label>
+          {{ form.password2 }}
+          <div id="pw2-fb" class="mt-1"></div>
+          {% if form.password2.errors %}<div class="field-err">{% for e in form.password2.errors %}{{ e }}{% endfor %}</div>{% endif %}
+        </div>
+        
+        <!-- reCAPTCHA v3 — invisible, scores automatically on submit -->
+        {{ form.captcha }}
+        {% if form.captcha.errors %}
+        <div class="alert alert-danger d-flex gap-2 mb-3" style="font-size:.8rem;">
+          <i class="fas fa-robot mt-1 flex-shrink-0"></i>
+          <span>reCAPTCHA verification failed. Please try again or refresh the page.</span>
+        </div>
+        {% endif %}
+
+<button type="submit" class="btn btn-dark w-100"><i class="fas fa-key"></i> Create Admin Account</button>
+      </form>
+
+      <div style="text-align:center;font-size:.8125rem;color:var(--text-muted);margin-top:20px;">
+        <p class="mb-0"><a href="{% url 'core:home' %}" style="color:var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
+      </div>
     </div>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var pw1 = document.getElementById('id_password1');
+  var pw2 = document.getElementById('id_password2');
+  var fb1 = document.getElementById('pw1-fb');
+  var fb2 = document.getElementById('pw2-fb');
+
+  var RULES = [
+    { test: function(v){ return v.length >= 8; },           label: 'At least 8 characters' },
+    { test: function(v){ return /[0-9]/.test(v); },         label: 'At least one number (0-9)' },
+    { test: function(v){ return /[!@#$%^&*()\-_=+\[\]{};:'",.<>\/?`~\\|]/.test(v); }, label: 'At least one special character (!@#$...)' },
+    { test: function(v){ return !/^\d+$/.test(v); },        label: 'Not entirely numbers' },
+  ];
+
+  function renderRules(v) {
+    if (!fb1) return;
+    if (!v) { fb1.innerHTML = ''; return; }
+    fb1.innerHTML = RULES.map(function(r){
+      var ok = r.test(v);
+      return '<div class="pw-rule ' + (ok?'ok':'fail') + '"><i class="fas fa-' + (ok?'check':'times') + '-circle"></i> ' + r.label + '</div>';
+    }).join('');
+  }
+
+  function renderMatch(v) {
+    if (!fb2) return;
+    if (!v || !pw1) { fb2.innerHTML = ''; return; }
+    var ok = pw1.value === v;
+    fb2.innerHTML = '<div class="' + (ok?'pw-match-ok':'pw-match-fail') + '"><i class="fas fa-' + (ok?'check':'times') + '-circle"></i> ' + (ok?'Passwords match':'Passwords do not match') + '</div>';
+  }
+
+  if (pw1) { pw1.addEventListener('input', function(){ renderRules(pw1.value); if (pw2 && pw2.value) renderMatch(pw2.value); }); }
+  if (pw2) pw2.addEventListener('input', function(){ renderMatch(pw2.value); });
+
+  var toggleBtn = document.getElementById('togglePw');
+  var pwIcon    = document.getElementById('pwIcon');
+  if (toggleBtn && pw1) {
+    toggleBtn.addEventListener('click', function(){
+      var isText = pw1.type === 'text';
+      pw1.type = isText ? 'password' : 'text';
+      if (pwIcon) pwIcon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+  }
+
+  var TLD    = {'.con':'.com','.cmo':'.com','.ocm':'.com','.cpm':'.com','.coml':'.com','.ney':'.net','.ogr':'.org','.nte':'.net'};
+  var DOMAIN = {'gmeel.com':'gmail.com','gmial.com':'gmail.com','gamil.com':'gmail.com','gmal.com':'gmail.com','gnail.com':'gmail.com','gmail.con':'gmail.com','yaho.com':'yahoo.com','yahooo.com':'yahoo.com','hotmial.com':'hotmail.com','outlok.com':'outlook.com'};
+
+  function checkEmail(v) {
+    if (!v || v.indexOf('@') === -1) return null;
+    var lo = v.toLowerCase().trim(), at = lo.lastIndexOf('@'), dom = lo.slice(at+1);
+    if (DOMAIN[dom]) return lo.slice(0,at+1)+DOMAIN[dom];
+    var keys = Object.keys(TLD);
+    for (var i=0; i<keys.length; i++) { if (lo.slice(-keys[i].length) === keys[i]) return lo.slice(0,-keys[i].length)+TLD[keys[i]]; }
+    return null;
+  }
+
+  function handleEmail(input) {
+    var sug = checkEmail(input.value);
+    var hint = input.parentNode.querySelector('.ng-email-hint');
+    if (!sug) { if (hint) hint.remove(); return; }
+    if (!hint) {
+      hint = document.createElement('div');
+      hint.className = 'ng-email-hint';
+      hint.style.cssText = 'margin-top:6px;padding:8px 12px;background:#FFFBEB;border:1px solid #FCD34D;border-radius:8px;font-size:.82rem;color:#78350F;display:flex;align-items:center;gap:8px;';
+      input.parentNode.insertBefore(hint, input.nextSibling);
+    }
+    hint.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Did you mean <strong class="ng-sug" style="cursor:pointer;text-decoration:underline;">' + sug + '</strong>?</span>';
+    hint.querySelector('.ng-sug').onclick = function(){ input.value = sug; hint.remove(); };
+  }
+
+  document.querySelectorAll('input[type="email"],input[name="email"]').forEach(function(i){ i.addEventListener('blur', function(){ handleEmail(i); }); });
+})();
+</script>
 {% endblock %}

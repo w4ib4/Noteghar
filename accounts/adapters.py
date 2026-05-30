@@ -22,9 +22,36 @@ class CustomAccountAdapter(DefaultAccountAdapter):
 
     def get_login_redirect_url(self, request):
         """
-        Redirect users based on their role after login
+        Redirect users based on their role after login.
+        Also updates login streak for students.
         """
         user = request.user
+
+        # Update login streak for students
+        if hasattr(user, 'role') and user.role == 'student':
+            try:
+                from django.utils import timezone
+                from notes.models import UserProfile
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                today = timezone.now().date()
+
+                if profile.last_login_date is None:
+                    profile.login_streak = 1
+                elif profile.last_login_date == today:
+                    pass  # already logged in today, don't change streak
+                elif (today - profile.last_login_date).days == 1:
+                    profile.login_streak += 1  # consecutive day
+                else:
+                    profile.login_streak = 1   # streak broken, reset
+
+                profile.last_login_date = today
+                profile.save(update_fields=['login_streak', 'last_login_date'])
+
+                # Check for streak badges
+                from notes.badge_utils import check_and_award_badges
+                check_and_award_badges(user)
+            except Exception:
+                pass  # never block login due to gamification errors
 
         if user.is_superuser or (hasattr(user, 'role') and user.role == 'admin'):
             return '/admin/dashboard/'

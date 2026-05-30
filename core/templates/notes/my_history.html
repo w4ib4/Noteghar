@@ -1,105 +1,71 @@
 {% extends 'base.html' %}
-
-{% block title %}My History - NoteGhar{% endblock %}
+{% block title %}My History — NoteGhar{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2><i class="fas fa-history text-info"></i> My History</h2>
-            <p class="text-muted">Your recent downloads and viewed notes</p>
-        </div>
-        <a href="{% url 'notes:list' %}" class="btn btn-outline-primary">
-            <i class="fas fa-search"></i> Browse More Notes
-        </a>
-    </div>
-    
-    <!-- Downloads Section -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-download"></i> Recent Downloads ({{ total_downloads }})
-            </h5>
-        </div>
-        <div class="card-body">
-            {% if downloads %}
-                <div class="list-group">
-                    {% for download in downloads %}
-                    <a href="{% url 'notes:detail' download.note.pk %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ download.note.title }}</h6>
-                                <p class="mb-1 text-muted small">
-                                    <span class="badge bg-info me-1">{{ download.note.course.code }}</span>
-                                    <span class="badge bg-secondary">{{ download.note.subject.name }}</span>
-                                </p>
-                                <small class="text-muted">
-                                    <i class="far fa-clock"></i> Downloaded {{ download.downloaded_at|timesince }} ago
-                                </small>
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-success">
-                                    <i class="fas fa-download"></i> Downloaded
-                                </span>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-download fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
-                    <p class="text-muted">No downloads yet. Start downloading notes!</p>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-    
-    <!-- Recently Viewed Section -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">
-                <i class="fas fa-eye"></i> Recently Viewed ({{ total_views }})
-            </h5>
-        </div>
-        <div class="card-body">
-            {% if views %}
-                <div class="list-group">
-                    {% for view in views %}
-                    <a href="{% url 'notes:detail' view.note.pk %}" class="list-group-item list-group-item-action">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ view.note.title }}</h6>
-                                <p class="mb-1 text-muted small">
-                                    <span class="badge bg-info me-1">{{ view.note.course.code }}</span>
-                                    <span class="badge bg-secondary">{{ view.note.subject.name }}</span>
-                                </p>
-                                <small class="text-muted">
-                                    <i class="far fa-clock"></i> Viewed {{ view.downloaded_at|timesince }} ago
-                                </small>
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-info">
-                                    <i class="fas fa-eye"></i> Viewed
-                                </span>
-                            </div>
-                        </div>
-                    </a>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <i class="fas fa-eye fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
-                    <p class="text-muted">No recently viewed notes.</p>
-                </div>
-            {% endif %}
-        </div>
-    </div>
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-title"><i class="fas fa-history" style="color:var(--primary);margin-right:10px;"></i>My History</h1>
+    <p class="page-subtitle">Your recent downloads and viewed notes</p>
+  </div>
 </div>
 
-<style>
-.list-group-item:hover {
-    background-color: #f8f9fa;
-}
-</style>
+<div class="container mb-5">
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 style="font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+            <span style="background:var(--primary-light);color:var(--primary);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;"><i class="fas fa-download"></i></span>
+            Downloads <span class="badge bg-secondary ms-1">{{ total_downloads }}</span>
+          </h5>
+          {% if downloads %}
+            {% for dl in downloads %}
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+              <div style="background:var(--primary-light);color:var(--primary);width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;"><i class="fas fa-file-alt"></i></div>
+              <div class="flex-grow-1">
+                <a href="{% url 'notes:detail' dl.note.pk %}" style="font-weight:600;font-size:.875rem;color:var(--dark);text-decoration:none;">{{ dl.note.title|truncatewords:8 }}</a>
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">{{ dl.note.course.code }} · {{ dl.note.subject.name }}</div>
+              </div>
+              <small style="color:var(--text-light);font-size:.72rem;flex-shrink:0;">{{ dl.downloaded_at|timesince }}</small>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="empty-state" style="padding:30px 0;">
+            <div class="empty-state-icon" style="width:44px;height:44px;font-size:1.1rem;"><i class="fas fa-download"></i></div>
+            <p style="font-size:.875rem;">No downloads yet. <a href="{% url 'notes:list' %}">Browse notes</a></p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 style="font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+            <span style="background:#ECFDF5;color:var(--success);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;"><i class="fas fa-eye"></i></span>
+            Recently Viewed <span class="badge bg-secondary ms-1">{{ total_views }}</span>
+          </h5>
+          {% if views %}
+            {% for v in views %}
+            <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+              <div style="background:#ECFDF5;color:var(--success);width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;"><i class="fas fa-eye"></i></div>
+              <div class="flex-grow-1">
+                <a href="{% url 'notes:detail' v.note.pk %}" style="font-weight:600;font-size:.875rem;color:var(--dark);text-decoration:none;">{{ v.note.title|truncatewords:8 }}</a>
+                <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">{{ v.note.course.code }} · {{ v.note.subject.name }}</div>
+              </div>
+              <small style="color:var(--text-light);font-size:.72rem;flex-shrink:0;">{{ v.downloaded_at|timesince }}</small>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="empty-state" style="padding:30px 0;">
+            <div class="empty-state-icon" style="width:44px;height:44px;font-size:1.1rem;"><i class="fas fa-eye"></i></div>
+            <p style="font-size:.875rem;">No recently viewed notes.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

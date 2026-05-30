@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Moderator Login — NoteGhar{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-wrap { min-height: calc(100vh - var(--nav-height) - 200px); display: flex; align-items: center; padding: 48px 0; }
+.auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 40px; box-shadow: var(--shadow-lg); max-width: 440px; width: 100%; margin: 0 auto; }
+.auth-logo  { width: 52px; height: 52px; background: var(--success); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.375rem; margin: 0 auto 20px; }
+.auth-title { font-size: 1.5rem; font-weight: 800; color: var(--dark); letter-spacing: -0.03em; text-align: center; margin-bottom: 6px; }
+.auth-sub   { font-size: .875rem; color: var(--text-muted); text-align: center; margin-bottom: 28px; }
+.auth-footer { text-align: center; font-size: .8125rem; color: var(--text-muted); margin-top: 20px; }
+.auth-footer a { color: var(--success); font-weight: 600; }
+.role-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+.role-tab { flex: 1; text-align: center; padding: 10px 8px; border-radius: var(--radius-md); border: 1.5px solid var(--border); font-size: .8rem; font-weight: 600; color: var(--text-muted); text-decoration: none; transition: all .15s; }
+.role-tab.active { border-color: var(--success); color: var(--success); background: #ECFDF5; }
+.role-tab:hover  { border-color: var(--success); color: var(--success); background: #ECFDF5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-logo"><i class="fas fa-shield-alt"></i></div>
+            <h1 class="auth-title">Moderator Login</h1>
+            <p class="auth-sub">Access your moderation dashboard</p>
+
+            <div class="role-tabs">
+                <a href="{% url 'accounts:student_login' %}" class="role-tab">Student</a>
+                <a href="{% url 'accounts:moderator_login' %}" class="role-tab active">Moderator</a>
+                <a href="{% url 'accounts:admin_login' %}" class="role-tab">Admin</a>
+            </div>
+
+            <form method="post" action="{% url 'account_login' %}" id="modLoginForm" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'moderation:dashboard' %}">
+                <div class="mb-3">
+                    <label class="form-label">Username or Email</label>
+                    <input type="text" name="login" class="form-control" placeholder="Enter your username or email" required>
+                </div>
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0">Password</label>
+                        <a href="{% url 'account_reset_password' %}" style="font-size:.78rem; color: var(--success);">Forgot password?</a>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" name="password" id="loginPw" class="form-control" placeholder="Enter your password" required>
+                        <button class="btn btn-secondary" type="button" id="togglePw" tabindex="-1" style="border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;">
+                            <i class="fas fa-eye" id="pwIcon"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-4 form-check">
+                    <input type="checkbox" name="remember" class="form-check-input" id="remember">
+                    <label class="form-check-label" for="remember" style="font-size: .875rem;">Remember me for 30 days</label>
+                </div>
+                <button type="submit" class="btn btn-success w-100"><i class="fas fa-sign-in-alt"></i> Log In as Moderator</button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="mb-1">Not a moderator yet? <a href="{% url 'accounts:signup_moderator' %}">Apply here</a></p>
+                <p class="mb-0"><a href="{% url 'core:home' %}" style="color: var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const btn = document.getElementById('togglePw');
+const pw  = document.getElementById('loginPw');
+const ico = document.getElementById('pwIcon');
+if (btn) btn.addEventListener('click', () => {
+    const isText = pw.type === 'text';
+    pw.type = isText ? 'password' : 'text';
+    ico.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Pending Approval - NoteGhar{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-warning">
+                <div class="card-body p-5 text-center">
+                    <div class="pending-icon mb-4">
+                        <i class="fas fa-hourglass-half fa-4x"></i>
+                    </div>
+                    
+                    <h2 class="mb-3">Account Pending Approval</h2>
+                    
+                    {% if user.role == 'moderator' %}
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Moderator Application Submitted</strong>
+                        </div>
+                        
+                        <p class="text-muted mb-4">
+                            Thank you for applying to become a moderator! Your application is currently under review by our administrators.
+                        </p>
+                        
+                        <div class="status-box mb-4">
+                            <h5>What happens next?</h5>
+                            <ul class="text-start">
+                                <li>Our team will review your qualifications and specialization</li>
+                                <li>We'll verify your uploaded documents</li>
+                                <li>You'll receive an email notification once approved</li>
+                                <li>This process typically takes 1-2 business days</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="fas fa-clock"></i>
+                            <strong>Status:</strong> Waiting for Admin Approval
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-4">
+                            Your account is currently inactive. Please contact an administrator for assistance.
+                        </p>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'account_logout' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                        <a href="{% url 'core:home' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-home"></i> Return to Home
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-top">
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-envelope"></i> Questions? Contact us at admin@noteghar.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.pending-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.pending-icon i {
+    color: #D97706;
+}
+
+.status-box {
+    background: #F9FAFB;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.status-box h5 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.status-box ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.status-box li {
+    margin-bottom: 8px;
+    color: #6B7280;
+}
+</style>
+{% endblock %}

@@ -1,200 +1,144 @@
 {% extends 'base.html' %}
+{% block title %}Leaderboard — NoteGhar{% endblock %}
 
-{% block title %}Leaderboard - NoteGhar{% endblock %}
+{% block extra_css %}
+<style>
+.lb-hero { background: var(--dark); padding: 52px 0; margin-bottom: 32px; text-align: center; }
+.lb-hero h1 { color: #F1F5F9; font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 8px; }
+.lb-hero p  { color: #94A3B8; margin: 0; }
+.section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; height: 100%; }
+.section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.section-icon { width: 38px; height: 38px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; flex-shrink: 0; }
+.section-head h3 { font-size: 1.0625rem; font-weight: 700; margin: 0; color: var(--dark); }
+.section-head .sub { font-size: .78rem; color: var(--text-muted); margin: 0; }
+.lb-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); text-decoration: none; transition: background .15s; }
+.lb-row:last-child { border: none; }
+.lb-row:hover { background: var(--primary-light); margin: 0 -24px; padding-left: 24px; padding-right: 24px; border-radius: var(--radius-sm); }
+.lb-rank { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; flex-shrink: 0; }
+.r1 { background: #FBBF24; color: #78350F; }
+.r2 { background: #E5E7EB; color: #374151; }
+.r3 { background: #D97706; color: #fff; }
+.rn { background: var(--body-bg); color: var(--text-muted); }
+.lb-av { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: .8rem; }
+.lb-av img { width: 36px; height: 36px; object-fit: cover; border-radius: 50%; }
+.lb-name { font-weight: 700; font-size: .875rem; color: var(--dark); }
+.lb-sub  { font-size: .72rem; color: var(--text-muted); }
+.lb-pts  { font-size: .875rem; font-weight: 800; margin-left: auto; flex-shrink: 0; }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="text-center mb-4">
-        <i class="fas fa-trophy text-warning"></i> Leaderboard
-    </h2>
-    
-    <div class="row g-4">
-        <!-- All-Time Top Contributors -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-warning">
-                    <h5 class="mb-0">
-                        <i class="fas fa-crown"></i> 🏆 All-Time Top Contributors
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        {% for profile in all_time %}
-                        <a href="{% url 'notes:user_profile' profile.user.username %}" 
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="badge bg-{{ forloop.counter|default:'secondary' }} me-2">
-                                        #{{ forloop.counter }}
-                                    </span>
-                                    <strong>{{ profile.user.username }}</strong>
-                                    <br>
-                                    <small class="text-muted">
-                                        {{ profile.get_level_name }}
-                                    </small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-primary fs-6">
-                                        {{ profile.total_points }} pts
-                                    </span>
-                                    <br>
-                                    <small class="text-muted">
-                                        {{ profile.notes_uploaded }} notes
-                                    </small>
-                                </div>
-                            </div>
-                        </a>
-                        {% empty %}
-                        <p class="text-center text-muted py-3">No data yet</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Monthly Top Contributors -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-calendar-alt"></i> 📈 Monthly Top Contributors
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        {% for entry in monthly_users %}
-                        <a href="{% url 'notes:user_profile' entry.profile.user.username %}" 
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="badge bg-primary me-2">#{{ forloop.counter }}</span>
-                                    <strong>{{ entry.profile.user.username }}</strong>
-                                </div>
-                                <span class="badge bg-success">
-                                    {{ entry.monthly_points }} pts this month
-                                </span>
-                            </div>
-                        </a>
-                        {% empty %}
-                        <p class="text-center text-muted py-3">No activity this month</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Highest Rated Contributors -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-star"></i> ⭐ Highest Rated Contributors
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        {% for profile in highest_rated %}
-                        <a href="{% url 'notes:user_profile' profile.user.username %}" 
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="badge bg-success me-2">#{{ forloop.counter }}</span>
-                                    <strong>{{ profile.user.username }}</strong>
-                                </div>
-                                <div class="text-warning">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= profile.avg_rating %}
-                                            <i class="fas fa-star"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <span class="text-dark ms-1">{{ profile.avg_rating|floatformat:1 }}</span>
-                                </div>
-                            </div>
-                        </a>
-                        {% empty %}
-                        <p class="text-center text-muted py-3">No rated notes yet</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Trending This Week -->
-        <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-fire"></i> 🔥 Trending This Week
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group list-group-flush">
-                        {% for entry in trending_users %}
-                        <a href="{% url 'notes:user_profile' entry.profile.user.username %}" 
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="badge bg-danger me-2">#{{ forloop.counter }}</span>
-                                    <strong>{{ entry.profile.user.username }}</strong>
-                                </div>
-                                <span class="badge bg-warning text-dark">
-                                    {{ entry.weekly_points }} pts this week
-                                </span>
-                            </div>
-                        </a>
-                        {% empty %}
-                        <p class="text-center text-muted py-3">No activity this week</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Most Helpful Reviewers -->
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-heart"></i> 💎 Most Helpful Reviewers
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        {% for profile in helpful_reviewers %}
-                        <div class="col-md-3 mb-3">
-                            <a href="{% url 'notes:user_profile' profile.user.username %}" 
-                               class="text-decoration-none">
-                                <div class="card border-info h-100">
-                                    <div class="card-body text-center">
-                                        <div class="mb-2">
-                                            <span class="badge bg-info fs-4">#{{ forloop.counter }}</span>
-                                        </div>
-                                        <h6>{{ profile.user.username }}</h6>
-                                        <p class="text-muted mb-0">
-                                            <i class="fas fa-thumbs-up"></i> 
-                                            {{ profile.helpful_count }} helpful marks
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        {% empty %}
-                        <p class="text-center text-muted py-3">No helpful reviews yet</p>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="lb-hero">
+  <div class="container">
+    <h1>🏆 Leaderboard</h1>
+    <p>Top student contributors — earn points by uploading, rating and helping others</p>
+  </div>
 </div>
 
-<style>
-.list-group-item:hover {
-    background-color: #f8f9fa;
-    transform: translateX(5px);
-    transition: all 0.2s;
-}
-</style>
+<div class="container mb-5">
+  <div class="row g-4">
+
+    <!-- All-Time -->
+    <div class="col-lg-6">
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-icon" style="background:#FBBF24;"><i class="fas fa-crown"></i></div>
+          <div><h3>All-Time Top Contributors</h3><p class="sub">Total points since joining</p></div>
+        </div>
+        {% for profile in all_time %}
+        <a href="{% url 'notes:user_profile' profile.user.username %}" class="lb-row">
+          <div class="lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% else %}rn{% endif %}">{{ forloop.counter }}</div>
+          <div class="lb-av">{% if profile.user.profile_picture %}<img src="{{ profile.user.profile_picture.url }}" alt="">{% else %}{{ profile.user.username|slice:":1"|upper }}{% endif %}</div>
+          <div><div class="lb-name">{{ profile.user.username }}</div><div class="lb-sub">{{ profile.get_level_name }} · {{ profile.notes_uploaded }} notes</div></div>
+          <div class="lb-pts" style="color:var(--primary);">{{ profile.total_points }} pts</div>
+        </a>
+        {% empty %}<p class="text-muted" style="font-size:.875rem;">No contributors yet.</p>{% endfor %}
+      </div>
+    </div>
+
+    <!-- Monthly -->
+    <div class="col-lg-6">
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-icon" style="background:var(--primary);"><i class="fas fa-calendar-alt"></i></div>
+          <div><h3>Monthly Champions</h3><p class="sub">Most points earned in the last 30 days</p></div>
+        </div>
+        {% for entry in monthly_users %}
+        <a href="{% url 'notes:user_profile' entry.profile.user.username %}" class="lb-row">
+          <div class="lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% else %}rn{% endif %}">{{ forloop.counter }}</div>
+          <div class="lb-av">{% if entry.profile.user.profile_picture %}<img src="{{ entry.profile.user.profile_picture.url }}" alt="">{% else %}{{ entry.profile.user.username|slice:":1"|upper }}{% endif %}</div>
+          <div><div class="lb-name">{{ entry.profile.user.username }}</div><div class="lb-sub">{{ entry.profile.notes_uploaded }} notes uploaded</div></div>
+          <div class="lb-pts" style="color:var(--primary);">{{ entry.monthly_points }} pts</div>
+        </a>
+        {% empty %}<p class="text-muted" style="font-size:.875rem;">No activity this month yet.</p>{% endfor %}
+      </div>
+    </div>
+
+    <!-- Highest Rated -->
+    <div class="col-lg-6">
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-icon" style="background:#FBBF24;"><i class="fas fa-star"></i></div>
+          <div><h3>Highest Rated Contributors</h3><p class="sub">Best average note rating · min 5 ratings</p></div>
+        </div>
+        {% for profile in highest_rated %}
+        <a href="{% url 'notes:user_profile' profile.user.username %}" class="lb-row">
+          <div class="lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% else %}rn{% endif %}">{{ forloop.counter }}</div>
+          <div class="lb-av">{% if profile.user.profile_picture %}<img src="{{ profile.user.profile_picture.url }}" alt="">{% else %}{{ profile.user.username|slice:":1"|upper }}{% endif %}</div>
+          <div class="flex-grow-1"><div class="lb-name">{{ profile.user.username }}</div><div class="lb-sub">{{ profile.rating_count }} ratings received</div></div>
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:.875rem;font-weight:800;color:#D97706;">{{ profile.avg_rating|floatformat:1 }} <i class="fas fa-star" style="font-size:.75rem;"></i></div>
+          </div>
+        </a>
+        {% empty %}<p class="text-muted" style="font-size:.875rem;">No rated contributors yet.</p>{% endfor %}
+      </div>
+    </div>
+
+    <!-- Trending This Week -->
+    <div class="col-lg-6">
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-icon" style="background:var(--danger);"><i class="fas fa-fire"></i></div>
+          <div><h3>Trending This Week</h3><p class="sub">Most points earned in the last 7 days</p></div>
+        </div>
+        {% for entry in trending_users %}
+        <a href="{% url 'notes:user_profile' entry.profile.user.username %}" class="lb-row">
+          <div class="lb-rank {% if forloop.counter == 1 %}r1{% elif forloop.counter == 2 %}r2{% elif forloop.counter == 3 %}r3{% else %}rn{% endif %}">{{ forloop.counter }}</div>
+          <div class="lb-av">{% if entry.profile.user.profile_picture %}<img src="{{ entry.profile.user.profile_picture.url }}" alt="">{% else %}{{ entry.profile.user.username|slice:":1"|upper }}{% endif %}</div>
+          <div><div class="lb-name">{{ entry.profile.user.username }}</div><div class="lb-sub">Active this week</div></div>
+          <div class="lb-pts" style="color:var(--danger);">{{ entry.weekly_points }} pts</div>
+        </a>
+        {% empty %}<p class="text-muted" style="font-size:.875rem;">No activity this week yet.</p>{% endfor %}
+      </div>
+    </div>
+
+    <!-- Most Helpful Reviewers (full width) -->
+    <div class="col-12">
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-icon" style="background:var(--success);"><i class="fas fa-thumbs-up"></i></div>
+          <div><h3>Most Helpful Reviewers</h3><p class="sub">Most reviews marked as helpful by other students</p></div>
+        </div>
+        {% if helpful_reviewers %}
+        <div class="row g-3">
+          {% for profile in helpful_reviewers %}
+          <div class="col-6 col-md-3 col-lg-2">
+            <a href="{% url 'notes:user_profile' profile.user.username %}" style="text-decoration:none;">
+              <div style="background:var(--body-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 12px;text-align:center;transition:all .18s;" onmouseover="this.style.borderColor='var(--success)'" onmouseout="this.style.borderColor='var(--border)'">
+                <div class="lb-av" style="margin:0 auto 10px;">{% if profile.user.profile_picture %}<img src="{{ profile.user.profile_picture.url }}" alt="">{% else %}{{ profile.user.username|slice:":1"|upper }}{% endif %}</div>
+                <div style="font-weight:700;font-size:.8125rem;color:var(--dark);">{{ profile.user.username }}</div>
+                <div style="font-size:.72rem;color:var(--success);margin-top:4px;"><i class="fas fa-thumbs-up me-1"></i>{{ profile.helpful_count }}</div>
+              </div>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:24px 0;"><div class="empty-state-icon" style="width:48px;height:48px;font-size:1.25rem;"><i class="fas fa-thumbs-up"></i></div><p style="font-size:.875rem;">No helpful reviews yet.</p></div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}

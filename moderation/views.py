@@ -183,9 +183,12 @@ def pending_reports_list(request):
 
 @user_passes_test(is_moderator)
 def approve_note(request, pk):
-    """Quick approve a note"""
+    """Approve a note — handles both GET (legacy) and POST"""
     note = get_object_or_404(Note, pk=pk, status='pending')
-    
+
+    if request.method not in ('GET', 'POST'):
+        return redirect('moderation:pending_notes')
+
     note.status = 'approved'
     note.approved_by = request.user
     note.approved_at = timezone.now()
@@ -199,7 +202,7 @@ def approve_note(request, pk):
         reason='Note approved'
     )
     
-    messages.success(request, f' Note "{note.title}" has been approved!')
+    messages.success(request, f'Note "{note.title}" has been approved!')
     
     # Redirect based on referrer
     next_url = request.GET.get('next', 'moderation:dashboard')
@@ -267,7 +270,7 @@ def review_report(request, pk):
             messages.info(request, 'Report dismissed.')
         
         report.save()
-        return redirect('moderation:dashboard')
+        return redirect('moderation:pending_reports')
     
     return render(request, 'moderation/review_report.html', {'report': report})
 

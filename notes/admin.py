@@ -1,6 +1,16 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Course, Semester, Subject, Note, Download
+from .models import Course, Semester, Subject, Note, Download, Institution
+from .models import Bookmark, Tag, RateLimit, NoteRequest, NoteRequestResponse
+from .models import Badge, UserBadge, UserProfile, PointTransaction
+
+@admin.register(Institution)
+class InstitutionAdmin(admin.ModelAdmin):
+    list_display  = ('name', 'short_name', 'location', 'is_active')
+    list_filter   = ('is_active',)
+    search_fields = ('name', 'short_name', 'location')
+    list_editable = ('is_active',)
+
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -87,3 +97,54 @@ class ReportAdmin(admin.ModelAdmin):
             'fields': ('status', 'reviewed_by', 'moderator_notes', 'reviewed_at')
         }),
     )
+@admin.register(Bookmark)
+class BookmarkAdmin(admin.ModelAdmin):
+    list_display = ['user', 'note', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__username', 'note__title']
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ['name', 'is_approved', 'usage_count', 'created_by']
+    list_filter = ['is_approved']
+    search_fields = ['name']
+    prepopulated_fields = {'slug': ('name',)}
+    actions = ['approve_tags']
+    
+    def approve_tags(self, request, queryset):
+        updated = queryset.update(is_approved=True)
+        self.message_user(request, f'{updated} tag(s) approved.')
+
+@admin.register(NoteRequest)
+class NoteRequestAdmin(admin.ModelAdmin):
+    list_display = ['topic', 'requester', 'course', 'status', 'created_at']
+    list_filter = ['status', 'course']
+    search_fields = ['topic', 'description']
+
+admin.site.register(RateLimit)
+admin.site.register(NoteRequestResponse)
+
+@admin.register(Badge)
+class BadgeAdmin(admin.ModelAdmin):
+    list_display = ['icon', 'name', 'category', 'requirement_type', 'requirement_value', 'points_reward']
+    list_filter = ['category']
+    search_fields = ['name', 'description']
+
+@admin.register(UserBadge)
+class UserBadgeAdmin(admin.ModelAdmin):
+    list_display = ['user', 'badge', 'earned_at']
+    list_filter = ['badge__category', 'earned_at']
+    search_fields = ['user__username', 'badge__name']
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'level', 'total_points', 'notes_uploaded', 'reviews_written']
+    list_filter = ['level']
+    search_fields = ['user__username']
+    readonly_fields = ['total_points', 'level']
+
+@admin.register(PointTransaction)
+class PointTransactionAdmin(admin.ModelAdmin):
+    list_display = ['user', 'points', 'reason', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['user__username', 'reason']

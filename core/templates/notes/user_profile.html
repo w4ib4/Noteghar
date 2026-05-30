@@ -1,35 +1,261 @@
 {% extends 'base.html' %}
+{% block title %}{{ profile_user.username }} — NoteGhar{% endblock %}
+
+{% block extra_css %}
+<style>
+.pub-header { background: var(--dark); padding: 48px 0 80px; }
+.pub-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.75rem; font-weight: 800; border: 3px solid rgba(255,255,255,.2); flex-shrink: 0; }
+.pub-avatar img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+.pub-body { margin-top: -48px; }
+.level-badge { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.badge-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; text-align: center; }
+.badge-icon { font-size: 2.25rem; margin-bottom: 8px; }
+.badge-name { font-size: .875rem; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.badge-desc { font-size: .75rem; color: var(--text-muted); margin: 0; }
+.activity-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.activity-row:last-child { border: none; }
+.pts-pill { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; background: #ECFDF5; color: #065F46; flex-shrink: 0; }
+.action-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .8rem; flex-shrink: 0; }
+.action-icon.approve { background: #ECFDF5; color: var(--success); }
+.action-icon.reject  { background: #FEF2F2; color: var(--danger); }
+.action-icon.remove  { background: #FFF7ED; color: var(--warning); }
+.action-icon.warn    { background: #FFF7ED; color: var(--warning); }
+.action-icon.default { background: var(--body-bg); color: var(--text-muted); }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>{{ profile_user.username }}'s Profile</h2>
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <p><strong>Level:</strong> {{ profile.level }}</p>
-            <p><strong>Total Points:</strong> {{ profile.total_points }}</p>
-            <p><strong>Total Downloads Received:</strong> {{ total_downloads_received }}</p>
-            <p><strong>Average Rating:</strong> {{ avg_rating }}</p>
+<!-- Profile Header -->
+<div class="pub-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-4 flex-wrap">
+      <div class="pub-avatar">
+        {% if profile_user.profile_picture %}
+          <img src="{{ profile_user.profile_picture.url }}" alt="">
+        {% else %}
+          {{ profile_user.username|slice:":1"|upper }}
+        {% endif %}
+      </div>
+      <div>
+        <h1 style="color:#F1F5F9;font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">
+          {{ profile_user.get_full_name|default:profile_user.username }}
+        </h1>
+        <div class="d-flex gap-2 flex-wrap" style="gap:8px !important;">
+          {% if role == 'moderator' %}
+            <span class="level-badge" style="background:rgba(5,150,105,.25);color:#6EE7B7;">
+              <i class="fas fa-shield-alt"></i> Moderator
+            </span>
+          {% elif role == 'admin' %}
+            <span class="level-badge" style="background:rgba(255,255,255,.15);color:#F1F5F9;">
+              <i class="fas fa-user-shield"></i> Administrator
+            </span>
+          {% else %}
+            <span class="level-badge" style="background:rgba(37,99,235,.25);color:#93C5FD;">
+              <i class="fas fa-star"></i> {{ profile.get_level_name }}
+            </span>
+            <span style="color:rgba(255,255,255,.65);font-size:.875rem;">
+              <i class="fas fa-gem me-1"></i>{{ profile.total_points }} points
+            </span>
+          {% endif %}
+          {% if profile_user.institution %}
+          <span style="color:rgba(255,255,255,.65);font-size:.875rem;">
+            <i class="fas fa-graduation-cap me-1"></i>{{ profile_user.institution }}
+          </span>
+          {% endif %}
         </div>
+      </div>
+      {% if is_own_profile %}
+      <a href="{% url 'accounts:profile' %}" class="btn btn-white ms-auto" style="align-self:flex-start;">
+        <i class="fas fa-edit"></i> Edit Profile
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="container mb-5 pub-body">
+
+  {% if role == 'moderator' %}
+  <!-- ══ MODERATOR PROFILE ══════════════════════════════════════════════ -->
+
+  <!-- Stats row -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value">{{ action_stats.total }}</div>
+        <div class="stat-label">Total Actions</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value" style="color:var(--success);">{{ action_stats.approvals }}</div>
+        <div class="stat-label">Approved</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value" style="color:var(--danger);">{{ action_stats.rejections }}</div>
+        <div class="stat-label">Rejected</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value" style="color:var(--warning);">{{ action_stats.removals }}</div>
+        <div class="stat-label">Removed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent moderation activity -->
+  <div class="card">
+    <div class="card-body">
+      <h5 style="font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+        <span style="background:#ECFDF5;color:var(--success);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;">
+          <i class="fas fa-history"></i>
+        </span>
+        Recent Moderation Activity
+      </h5>
+
+      {% if recent_actions %}
+        {% for action in recent_actions %}
+        <div class="activity-row">
+          <div class="action-icon {{ action.action_type|default:'default' }}">
+            {% if action.action_type == 'approve' %}<i class="fas fa-check"></i>
+            {% elif action.action_type == 'reject' %}<i class="fas fa-times"></i>
+            {% elif action.action_type == 'remove' %}<i class="fas fa-trash"></i>
+            {% elif action.action_type == 'warn' %}<i class="fas fa-exclamation-triangle"></i>
+            {% else %}<i class="fas fa-shield-alt"></i>{% endif %}
+          </div>
+          <div class="flex-grow-1">
+            <div style="font-weight:600;font-size:.875rem;color:var(--dark);">
+              {{ action.get_action_type_display }}
+              {% if action.note %}
+                — <a href="{% url 'notes:detail' action.note.pk %}" style="color:var(--primary);text-decoration:none;">{{ action.note.title|truncatewords:8 }}</a>
+              {% endif %}
+            </div>
+            {% if action.reason %}
+            <div style="font-size:.78rem;color:var(--text-muted);margin-top:2px;">{{ action.reason|truncatewords:15 }}</div>
+            {% endif %}
+            {% if action.note %}
+            <div style="font-size:.75rem;color:var(--text-light);margin-top:2px;">
+              {{ action.note.course.code }} · {{ action.note.subject.name }}
+            </div>
+            {% endif %}
+          </div>
+          <small style="color:var(--text-light);font-size:.72rem;flex-shrink:0;">{{ action.created_at|timesince }} ago</small>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state" style="padding:32px 0;">
+          <div class="empty-state-icon" style="width:48px;height:48px;font-size:1.25rem;"><i class="fas fa-shield-alt"></i></div>
+          <p style="font-size:.875rem;">No moderation actions yet.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% else %}
+  <!-- ══ STUDENT / ADMIN PROFILE ════════════════════════════════════════ -->
+
+  <!-- Stats row -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value">{{ profile.notes_uploaded }}</div>
+        <div class="stat-label">Notes Uploaded</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value">{{ total_downloads_received }}</div>
+        <div class="stat-label">Times Downloaded</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value">{{ profile.total_points }}</div>
+        <div class="stat-label">Total Points</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card text-center">
+        <div class="stat-value">{{ profile.level }}</div>
+        <div class="stat-label">Level</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Badges -->
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 style="font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-medal" style="color:var(--warning);"></i> Earned Badges
+          </h5>
+          {% if earned_badges %}
+          <div class="row g-3">
+            {% for ub in earned_badges %}
+            <div class="col-6 col-md-4">
+              <div class="badge-card">
+                <div class="badge-icon">{{ ub.badge.icon }}</div>
+                <div class="badge-name">{{ ub.badge.name }}</div>
+                <p class="badge-desc">{{ ub.badge.description|truncatewords:10 }}</p>
+                <small style="color:var(--text-light);font-size:.72rem;">{{ ub.earned_at|date:"M Y" }}</small>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state" style="padding:30px 0;">
+            <div class="empty-state-icon" style="width:48px;height:48px;font-size:1.25rem;"><i class="fas fa-medal"></i></div>
+            <p style="font-size:.875rem;">No badges earned yet</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Uploaded notes -->
+      <div class="card">
+        <div class="card-body">
+          <h5 style="font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-folder-open" style="color:var(--primary);"></i> Recent Notes
+          </h5>
+          {% for note in uploaded_notes %}
+          <div class="activity-row">
+            <div class="flex-grow-1">
+              <a href="{% url 'notes:detail' note.pk %}" style="font-weight:600;font-size:.875rem;color:var(--dark);">{{ note.title|truncatewords:10 }}</a>
+              <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">{{ note.course.code }} · {{ note.subject.name }}</div>
+            </div>
+            <small style="color:var(--text-muted);font-size:.75rem;flex-shrink:0;"><i class="fas fa-download"></i> {{ note.download_count }}</small>
+          </div>
+          {% empty %}
+          <p class="text-muted" style="font-size:.875rem;">No approved notes yet.</p>
+          {% endfor %}
+        </div>
+      </div>
     </div>
 
-    <h3>Earned Badges</h3>
-    {% if earned_badges %}
-        <div class="row">
-            {% for user_badge in earned_badges %}
-                <div class="col-md-4 mb-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5>{{ user_badge.badge.icon }} {{ user_badge.badge.name }}</h5>
-                            <p>{{ user_badge.badge.description }}</p>
-                            <small>Earned on {{ user_badge.earned_at }}</small>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+    <!-- Recent point activity -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 style="font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-bolt" style="color:var(--accent);"></i> Recent Activity
+          </h5>
+          {% for tx in recent_activity %}
+          <div class="activity-row">
+            <div style="flex-grow:1;font-size:.8125rem;color:var(--text-muted);">{{ tx.reason }}</div>
+            <span class="pts-pill">+{{ tx.points }} pts</span>
+          </div>
+          {% empty %}
+          <p class="text-muted" style="font-size:.875rem;">No activity yet.</p>
+          {% endfor %}
         </div>
-    {% else %}
-        <p>No badges earned yet.</p>
-    {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% endif %}
 </div>
 {% endblock %}
