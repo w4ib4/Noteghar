@@ -1,180 +1,261 @@
 {% extends 'base.html' %}
 {% load socialaccount %}
-{% block title %}Student Sign Up — NoteGhar{% endblock %}
 
-{% block extra_css %}
-<style>
-.auth-wrap{min-height:calc(100vh - 64px - 200px);display:flex;align-items:flex-start;padding:48px 0;}
-.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:40px;box-shadow:var(--shadow-lg);max-width:480px;width:100%;margin:0 auto;}
-.auth-logo{width:52px;height:52px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.375rem;margin:0 auto 20px;}
-.auth-title{font-size:1.5rem;font-weight:800;color:var(--dark);letter-spacing:-0.03em;text-align:center;margin-bottom:6px;}
-.auth-sub{font-size:.875rem;color:var(--text-muted);text-align:center;margin-bottom:28px;}
-.role-tabs{display:flex;gap:6px;margin-bottom:24px;}
-.role-tab{flex:1;text-align:center;padding:9px 6px;border-radius:var(--radius-md);border:1.5px solid var(--border);font-size:.8rem;font-weight:600;color:var(--text-muted);text-decoration:none;transition:all .15s;}
-.role-tab:hover,.role-tab.active{border-color:var(--primary);color:var(--primary);background:var(--primary-light);}
-.btn-google{background:var(--surface);border:1.5px solid var(--border);color:var(--dark);font-weight:600;font-size:.875rem;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px;border-radius:var(--radius-md);transition:all .18s;width:100%;text-decoration:none;}
-.btn-google:hover{border-color:var(--border-hover);box-shadow:var(--shadow-sm);color:var(--dark);}
-.divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
-.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border);}
-.divider span{font-size:.75rem;color:var(--text-muted);font-weight:500;}
-.auth-footer{text-align:center;font-size:.8125rem;color:var(--text-muted);margin-top:20px;}
-.auth-footer a{color:var(--primary);font-weight:600;}
-.field-err{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:7px 12px;color:#991B1B;font-size:.8rem;margin-top:5px;}
-.pw-rule{display:flex;align-items:center;gap:5px;font-size:.78rem;padding:1px 0;}
-.pw-rule.ok{color:#059669;}.pw-rule.fail{color:#DC2626;}
-.pw-match-ok{font-size:.78rem;color:#059669;}.pw-match-fail{font-size:.78rem;color:#DC2626;}
-</style>
-{% endblock %}
+{% block title %}Student Registration{% endblock %}
 
 {% block content %}
-<div class="auth-wrap">
-  <div class="container">
-    <div class="auth-card">
-      <div class="auth-logo" style="background:var(--primary);"><i class="fas fa-user-graduate"></i></div>
-      <h1 class="auth-title">Create Student Account</h1>
-      <p class="auth-sub">Join thousands of students sharing knowledge</p>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <i class="fas fa-user-graduate fa-3x mb-2"></i>
+                    <h3>Student Registration</h3>
+                </div>
+                <div class="card-body p-5">
+{% load socialaccount %}
+                    {% get_providers as socialaccount_providers %}
+                    {% for provider in socialaccount_providers %}{% if provider.id == "google" %}
+                    <!-- Google OAuth Button -->
+{% load socialaccount %}
+                    {% get_providers as socialaccount_providers %}
+                    {% for provider in socialaccount_providers %}{% if provider.id == "google" %}
+                    <a href="{% provider_login_url 'google' %}?next={% url 'core:home' %}"
+                       class="btn btn-google w-100 mb-4">
+                        <svg width="18" height="18" style="margin-right: 12px;" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continue with Google
+                    </a>
+                    {% endif %}{% endfor %}
+                    {% endif %}{% endfor %}
 
-      <div class="role-tabs">
-        <a href="{% url 'accounts:signup_student' %}" class="role-tab active">Student</a>
-        <a href="{% url 'accounts:signup_moderator' %}" class="role-tab">Moderator</a>
-        <a href="{% url 'accounts:signup_admin' %}" class="role-tab">Admin</a>
-      </div>
+                    <div class="text-center mb-3">
+                        <div class="divider"><span>or</span></div>
+                    </div>
 
-      <a href="{% provider_login_url 'google' %}?next={% url 'core:home' %}" class="btn-google">
-        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Continue with Google
-      </a>
-      <div class="divider"><span>or sign up with email</span></div>
+                    <form method="post" id="studentSignupForm" novalidate>
+                        {% csrf_token %}
 
-      <form method="post" id="signupForm" novalidate>
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger d-flex gap-2 mb-3">
-          <i class="fas fa-exclamation-circle mt-1"></i><div>{{ form.non_field_errors }}</div>
-        </div>
-        {% endif %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-1"></i>
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
 
-        <div class="mb-3">
-          <label class="form-label">Username <span style="color:var(--danger);">*</span></label>
-          {{ form.username }}
-          {% if form.username.errors %}<div class="field-err"><i class="fas fa-exclamation-circle me-1"></i>{% for e in form.username.errors %}{{ e }}{% endfor %}</div>{% endif %}
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Email <span style="color:var(--danger);">*</span></label>
-          {{ form.email }}
-          {% if form.email.errors %}<div class="field-err"><i class="fas fa-exclamation-circle me-1"></i>{% for e in form.email.errors %}{{ e }}{% endfor %}</div>{% endif %}
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Institution <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
-          {{ form.institution }}
-          <div class="form-text">Helps you find notes from your institution</div>
-          {% if form.institution.errors %}<div class="field-err">{% for e in form.institution.errors %}{{ e }}{% endfor %}</div>{% endif %}
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Password <span style="color:var(--danger);">*</span></label>
-          {{ form.password1 }}
-          <div id="pw1-fb" class="mt-1"></div>
-          {% if form.password1.errors %}<div class="field-err">{% for e in form.password1.errors %}{{ e }}{% endfor %}</div>{% endif %}
-        </div>
-        <div class="mb-4">
-          <label class="form-label">Confirm Password <span style="color:var(--danger);">*</span></label>
-          {{ form.password2 }}
-          <div id="pw2-fb" class="mt-1"></div>
-          {% if form.password2.errors %}<div class="field-err">{% for e in form.password2.errors %}{{ e }}{% endfor %}</div>{% endif %}
-        </div>
-        
-        <!-- reCAPTCHA v3 — invisible, scores automatically on submit -->
-        {{ form.captcha }}
-        {% if form.captcha.errors %}
-        <div class="alert alert-danger d-flex gap-2 mb-3" style="font-size:.8rem;">
-          <i class="fas fa-robot mt-1 flex-shrink-0"></i>
-          <span>reCAPTCHA verification failed. Please try again or refresh the page.</span>
-        </div>
-        {% endif %}
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.username.label }}</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="field-error-box mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {% for error in form.username.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
 
-<button type="submit" class="btn btn-primary w-100"><i class="fas fa-user-plus"></i> Create Account</button>
-      </form>
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.email.label }}</label>
+                            {{ form.email }}
+                            <!-- Email typo warning injected here by global validator in base.html -->
+                            {% if form.email.errors %}
+                                <div class="field-error-box mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
 
-      <div class="auth-footer">
-        <p class="mb-1">Already have an account? <a href="{% url 'accounts:student_login' %}">Log in</a></p>
-        <p class="mb-0"><a href="{% url 'core:home' %}" style="color:var(--text-muted);"><i class="fas fa-arrow-left"></i> Back to Home</a></p>
-      </div>
+                        <!-- Institution -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.institution.label }}</label>
+                            {{ form.institution }}
+                            <small class="form-text text-muted">Optional — helps you find notes from your institution</small>
+                            {% if form.institution.errors %}
+                                <div class="field-error-box mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {% for error in form.institution.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password 1 -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.password1.label }}</label>
+                            {{ form.password1 }}
+                            <!-- Real-time rules injected below by JS -->
+                            <div id="pw1-feedback" class="mt-1"></div>
+                            {% if form.password1.errors %}
+                                <div class="field-error-box mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {% for error in form.password1.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password 2 -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">{{ form.password2.label }}</label>
+                            {{ form.password2 }}
+                            <div id="pw2-feedback" class="mt-1"></div>
+                            {% if form.password2.errors %}
+                                <div class="field-error-box mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                    {% for error in form.password2.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus"></i> Create Student Account
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Already have an account?
+                            <a href="{% url 'accounts:student_login' %}">Login</a>
+                        </p>
+                        <p class="text-muted">
+                            <a href="{% url 'accounts:signup_moderator' %}">← Choose different role</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<style>
+.btn-google {
+    background: white;
+    border: 2px solid #dadce0;
+    color: #3c4043;
+    font-weight: 500;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.btn-google:hover {
+    background: #f8f9fa;
+    border-color: #d2d4d6;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: #3c4043;
+}
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dadce0;
+}
+.divider span {
+    padding: 0 10px;
+    color: #5f6368;
+    font-size: 0.875rem;
+}
+
+/* ── Error boxes ─────────────────────────── */
+.field-error-box {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 6px;
+    padding: 7px 12px;
+    color: #DC2626;
+    font-size: 0.82rem;
+}
+
+/* ── Password feedback ───────────────────── */
+.pw-rule {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    padding: 1px 0;
+}
+.pw-rule.ok   { color: #16A34A; }
+.pw-rule.fail { color: #DC2626; }
+.pw-match-ok   { font-size: 0.78rem; color: #16A34A; }
+.pw-match-fail { font-size: 0.78rem; color: #DC2626; }
+</style>
+
 <script>
-(function () {
-  var pw1 = document.getElementById('id_password1');
-  var pw2 = document.getElementById('id_password2');
-  var fb1 = document.getElementById('pw1-fb');
-  var fb2 = document.getElementById('pw2-fb');
+document.addEventListener('DOMContentLoaded', function () {
 
-  var RULES = [
-    { test: function(v){ return v.length >= 8; },           label: 'At least 8 characters' },
-    { test: function(v){ return /[0-9]/.test(v); },         label: 'At least one number (0-9)' },
-    { test: function(v){ return /[!@#$%^&*()\-_=+\[\]{};:'",.<>\/?`~\\|]/.test(v); }, label: 'At least one special character (!@#$...)' },
-    { test: function(v){ return !/^\d+$/.test(v); },        label: 'Not entirely numbers' },
-  ];
+    const pw1 = document.getElementById('id_password1');
+    const pw2 = document.getElementById('id_password2');
+    const fb1 = document.getElementById('pw1-feedback');
+    const fb2 = document.getElementById('pw2-feedback');
 
-  function renderRules(v) {
-    if (!fb1) return;
-    if (!v) { fb1.innerHTML = ''; return; }
-    fb1.innerHTML = RULES.map(function(r){
-      var ok = r.test(v);
-      return '<div class="pw-rule ' + (ok?'ok':'fail') + '"><i class="fas fa-' + (ok?'check':'times') + '-circle"></i> ' + r.label + '</div>';
-    }).join('');
-  }
-
-  function renderMatch(v) {
-    if (!fb2) return;
-    if (!v || !pw1) { fb2.innerHTML = ''; return; }
-    var ok = pw1.value === v;
-    fb2.innerHTML = '<div class="' + (ok?'pw-match-ok':'pw-match-fail') + '"><i class="fas fa-' + (ok?'check':'times') + '-circle"></i> ' + (ok?'Passwords match':'Passwords do not match') + '</div>';
-  }
-
-  if (pw1) { pw1.addEventListener('input', function(){ renderRules(pw1.value); if (pw2 && pw2.value) renderMatch(pw2.value); }); }
-  if (pw2) pw2.addEventListener('input', function(){ renderMatch(pw2.value); });
-
-  var toggleBtn = document.getElementById('togglePw');
-  var pwIcon    = document.getElementById('pwIcon');
-  if (toggleBtn && pw1) {
-    toggleBtn.addEventListener('click', function(){
-      var isText = pw1.type === 'text';
-      pw1.type = isText ? 'password' : 'text';
-      if (pwIcon) pwIcon.className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
-    });
-  }
-
-  var TLD    = {'.con':'.com','.cmo':'.com','.ocm':'.com','.cpm':'.com','.coml':'.com','.ney':'.net','.ogr':'.org','.nte':'.net'};
-  var DOMAIN = {'gmeel.com':'gmail.com','gmial.com':'gmail.com','gamil.com':'gmail.com','gmal.com':'gmail.com','gnail.com':'gmail.com','gmail.con':'gmail.com','yaho.com':'yahoo.com','yahooo.com':'yahoo.com','hotmial.com':'hotmail.com','outlok.com':'outlook.com'};
-
-  function checkEmail(v) {
-    if (!v || v.indexOf('@') === -1) return null;
-    var lo = v.toLowerCase().trim(), at = lo.lastIndexOf('@'), dom = lo.slice(at+1);
-    if (DOMAIN[dom]) return lo.slice(0,at+1)+DOMAIN[dom];
-    var keys = Object.keys(TLD);
-    for (var i=0; i<keys.length; i++) { if (lo.slice(-keys[i].length) === keys[i]) return lo.slice(0,-keys[i].length)+TLD[keys[i]]; }
-    return null;
-  }
-
-  function handleEmail(input) {
-    var sug = checkEmail(input.value);
-    var hint = input.parentNode.querySelector('.ng-email-hint');
-    if (!sug) { if (hint) hint.remove(); return; }
-    if (!hint) {
-      hint = document.createElement('div');
-      hint.className = 'ng-email-hint';
-      hint.style.cssText = 'margin-top:6px;padding:8px 12px;background:#FFFBEB;border:1px solid #FCD34D;border-radius:8px;font-size:.82rem;color:#78350F;display:flex;align-items:center;gap:8px;';
-      input.parentNode.insertBefore(hint, input.nextSibling);
+    /* Live password rules */
+    function renderPw1Rules(val) {
+        if (!val) { fb1.innerHTML = ''; return; }
+        const rules = [
+            { ok: val.length >= 8,        text: 'At least 8 characters' },
+            { ok: !/^\d+$/.test(val),      text: 'Cannot be entirely numbers' },
+            { ok: !/^(.)\1+$/.test(val),   text: 'Cannot be all the same character' },
+        ];
+        fb1.innerHTML = rules.map(r => {
+            const cls  = r.ok ? 'ok'               : 'fail';
+            const icon = r.ok ? 'fa-check-circle'  : 'fa-times-circle';
+            return `<div class="pw-rule ${cls}"><i class="fas ${icon}"></i> ${r.text}</div>`;
+        }).join('');
     }
-    hint.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Did you mean <strong class="ng-sug" style="cursor:pointer;text-decoration:underline;">' + sug + '</strong>?</span>';
-    hint.querySelector('.ng-sug').onclick = function(){ input.value = sug; hint.remove(); };
-  }
 
-  document.querySelectorAll('input[type="email"],input[name="email"]').forEach(function(i){ i.addEventListener('blur', function(){ handleEmail(i); }); });
-})();
+    /* Live password match */
+    function renderPw2Match(val) {
+        if (!val || !pw1) { fb2.innerHTML = ''; return; }
+        if (pw1.value === val) {
+            fb2.innerHTML = '<div class="pw-match-ok"><i class="fas fa-check-circle"></i> Passwords match</div>';
+        } else {
+            fb2.innerHTML = '<div class="pw-match-fail"><i class="fas fa-times-circle"></i> Passwords do not match</div>';
+        }
+    }
+
+    if (pw1) pw1.addEventListener('input', function () {
+        renderPw1Rules(pw1.value);
+        if (pw2 && pw2.value) renderPw2Match(pw2.value);
+    });
+    if (pw2) pw2.addEventListener('input', function () { renderPw2Match(pw2.value); });
+
+    /* Block submit on validation failures */
+    const form = document.getElementById('studentSignupForm');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            let blocked = false;
+
+            if (pw1 && /^\d+$/.test(pw1.value)) {
+                renderPw1Rules(pw1.value);
+                blocked = true;
+            }
+            if (pw1 && pw1.value.length > 0 && pw1.value.length < 8) {
+                renderPw1Rules(pw1.value);
+                blocked = true;
+            }
+            if (pw1 && pw2 && pw1.value && pw2.value && pw1.value !== pw2.value) {
+                renderPw2Match(pw2.value);
+                blocked = true;
+            }
+
+            if (blocked) {
+                e.preventDefault();
+                // Scroll to first failing field
+                const firstFail = form.querySelector('.pw-rule.fail, .pw-match-fail');
+                if (firstFail) firstFail.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+});
 </script>
 {% endblock %}
