@@ -8,10 +8,7 @@ running the server.
 
 from pathlib import Path
 from decouple import config, Csv
-
-# ---------------------------------------------------------------------------
 # BASE
-# ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
@@ -19,10 +16,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
-
-# ---------------------------------------------------------------------------
 # APPLICATIONS
-# ---------------------------------------------------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -81,38 +75,44 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'noteghar.wsgi.application'
 
-# ---------------------------------------------------------------------------
 # DATABASE
-# ---------------------------------------------------------------------------
-_db_engine = config('DB_ENGINE', default='sqlite3')
+# Supports DATABASE_URL Railway or individual DB_* variables
+import os as _os
 
-if _db_engine == 'postgresql':
+_database_url = config('DATABASE_URL', default='')
+
+if _database_url:
+    # Railway/Heroku style — parse the URL directly
+    import dj_database_url as _dj
     DATABASES = {
-        'default': {
-            'ENGINE':       'django.db.backends.postgresql',
-            'NAME':         config('DB_NAME'),
-            'USER':         config('DB_USER'),
-            'PASSWORD':     config('DB_PASSWORD'),
-            'HOST':         config('DB_HOST',         default='localhost'),
-            'PORT':         config('DB_PORT',         default='5432'),
-            'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=60, cast=int),
-            'OPTIONS': {
-                'connect_timeout': 10,
-            },
-        }
+        'default': _dj.parse(_database_url, conn_max_age=60)
     }
 else:
-    # Default: SQLite (fine for development / FYP demo)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+    _db_engine = config('DB_ENGINE', default='sqlite3')
 
-# ---------------------------------------------------------------------------
+    if _db_engine == 'postgresql':
+        DATABASES = {
+            'default': {
+                'ENGINE':       'django.db.backends.postgresql',
+                'NAME':         config('DB_NAME'),
+                'USER':         config('DB_USER'),
+                'PASSWORD':     config('DB_PASSWORD'),
+                'HOST':         config('DB_HOST',         default='localhost'),
+                'PORT':         config('DB_PORT',         default='5432'),
+                'CONN_MAX_AGE': config('DB_CONN_MAX_AGE', default=60, cast=int),
+                'OPTIONS': {
+                    'connect_timeout': 10,
+                },
+            }
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 # AUTHENTICATION
-# ---------------------------------------------------------------------------
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -129,12 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
-
-# ---------------------------------------------------------------------------
 # EMAIL
-# ---------------------------------------------------------------------------
-# Set EMAIL_BACKEND=smtp in .env to send real emails.
-# Leave it as console (default) during local development.
 _email_backend = config('EMAIL_BACKEND', default='console')
 
 if _email_backend == 'smtp':
@@ -149,9 +144,7 @@ else:
     # Prints emails to the console — safe for development
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# ---------------------------------------------------------------------------
 # ALLAUTH
-# ---------------------------------------------------------------------------
 SITE_ID = 1
 
 ACCOUNT_LOGIN_METHODS       = {'email', 'username'}
@@ -177,23 +170,15 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
-
-# ---------------------------------------------------------------------------
 # RECAPTCHA
-# ---------------------------------------------------------------------------
 RECAPTCHA_PUBLIC_KEY    = config('RECAPTCHA_PUBLIC_KEY',  default='')
 RECAPTCHA_PRIVATE_KEY   = config('RECAPTCHA_PRIVATE_KEY', default='')
 RECAPTCHA_REQUIRED_SCORE = config('RECAPTCHA_REQUIRED_SCORE', default=0.85, cast=float)
-
-# ---------------------------------------------------------------------------
 # CRISPY FORMS
-# ---------------------------------------------------------------------------
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK          = 'bootstrap5'
 
-# ---------------------------------------------------------------------------
 # CUSTOM APP SETTINGS
-# ---------------------------------------------------------------------------
 ADMIN_REGISTRATION_KEY = config('ADMIN_REGISTRATION_KEY')
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10 MB
@@ -205,7 +190,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE     = 'Asia/Kathmandu'
 USE_I18N      = True
 USE_TZ        = True
-
 # STATIC & MEDIA
 STATIC_URL  = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # collectstatic target
@@ -218,10 +202,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # SECURITY HEADERS (only meaningful when DEBUG=False)
 if not DEBUG:
-    SECURE_HSTS_SECONDS            = 31536000   # 1 year
+    # Railway terminates SSL before reaching Django — don't redirect again
+    SECURE_SSL_REDIRECT            = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+    SECURE_PROXY_SSL_HEADER        = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_HSTS_SECONDS            = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD            = True
-    SECURE_SSL_REDIRECT            = True
     SESSION_COOKIE_SECURE          = True
     CSRF_COOKIE_SECURE             = True
     SECURE_BROWSER_XSS_FILTER      = True
