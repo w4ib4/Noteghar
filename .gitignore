@@ -51,3 +51,8 @@ fresh_start.py
 noteghar.zip
 core.zip
 sqlite3.exe
+db.sqlite3 
+sqlite3.exe 
+core.zip 
+_init_data.py 
+_load_no_signals.py 
