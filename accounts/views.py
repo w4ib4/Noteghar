@@ -175,7 +175,7 @@ def profile_view(request):
             'my_downloads': my_downloads,
         }
     elif request.user.role == 'moderator':
-        from notes.models import ModerationAction
+        from moderation.models import ModerationAction
         
         my_actions = ModerationAction.objects.filter(moderator=request.user)
         stats = {
