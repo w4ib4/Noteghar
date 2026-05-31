@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from .models import (
@@ -10,11 +11,7 @@ from .models import (
 )
 from .badge_utils import award_points, update_user_stats
 
-
-# -------------------------
 # NOTE STATUS TRACKING
-# -------------------------
-
 @receiver(pre_save, sender=Note)
 def cache_old_note_status(sender, instance, **kwargs):
     """
@@ -25,6 +22,42 @@ def cache_old_note_status(sender, instance, **kwargs):
         instance._old_status = old.status if old else None
     else:
         instance._old_status = None
+
+
+@receiver(post_save, sender=Note)
+def auto_assign_moderator(sender, instance, created, **kwargs):
+    """Auto-assign note to best matching moderator on upload."""
+    if not created or instance.status != 'pending':
+        return
+    from django.contrib.auth import get_user_model
+    from django.db.models import Count
+    User = get_user_model()
+
+    moderators = User.objects.filter(role='moderator', is_active=True)
+
+    # Priority 1: exact subject match
+    qs = moderators.filter(
+        specialization_subjects=instance.subject
+    ).annotate(
+        workload=Count('assigned_notes', filter=Q(assigned_notes__status='pending'))
+    ).order_by('workload')
+
+    # Priority 2: course match
+    if not qs.exists():
+        qs = moderators.filter(
+            specialization_courses=instance.course
+        ).annotate(
+            workload=Count('assigned_notes', filter=Q(assigned_notes__status='pending'))
+        ).order_by('workload')
+
+    # Priority 3: any moderator (least busy)
+    if not qs.exists():
+        qs = moderators.annotate(
+            workload=Count('assigned_notes', filter=Q(assigned_notes__status='pending'))
+        ).order_by('workload')
+
+    if qs.exists():
+        Note.objects.filter(pk=instance.pk).update(assigned_moderator=qs.first())
 
 
 @receiver(post_save, sender=Note)
@@ -64,11 +97,7 @@ def update_stats_on_note(sender, instance, **kwargs):
     """
     update_user_stats(instance.uploaded_by)
 
-
-# -------------------------
 # DOWNLOADS
-# -------------------------
-
 @receiver(post_save, sender=Download)
 def download_points(sender, instance, created, **kwargs):
     """
@@ -92,11 +121,7 @@ def update_stats_on_download(sender, instance, **kwargs):
     update_user_stats(instance.user)
     update_user_stats(instance.note.uploaded_by)
 
-
-# -------------------------
 # RATINGS
-# -------------------------
-
 @receiver(pre_save, sender=Rating)
 def cache_old_rating_value(sender, instance, **kwargs):
     """
@@ -177,11 +202,7 @@ def update_stats_on_rating(sender, instance, **kwargs):
     update_user_stats(instance.user)
     update_user_stats(instance.note.uploaded_by)
 
-
-# -------------------------
 # HELPFUL MARKS
-# -------------------------
-
 @receiver(post_save, sender=RatingHelpful)
 def helpful_review_points(sender, instance, created, **kwargs):
     """
@@ -196,11 +217,7 @@ def helpful_review_points(sender, instance, created, **kwargs):
         )
         update_user_stats(instance.rating.user)
 
-
-# -------------------------
 # REQUEST RESPONSES
-# -------------------------
-
 @receiver(pre_save, sender=NoteRequestResponse)
 def cache_old_response_helpful(sender, instance, **kwargs):
     """
@@ -242,11 +259,7 @@ def best_answer_points(sender, instance, created, **kwargs):
         )
         update_user_stats(instance.responder)
 
-
-# -------------------------
 # BOOKMARKS
-# -------------------------
-
 @receiver(post_save, sender=Bookmark)
 def update_stats_on_bookmark(sender, instance, **kwargs):
     """
