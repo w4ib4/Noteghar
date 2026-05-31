@@ -231,7 +231,7 @@ def reject_note(request, pk):
         messages.warning(request, f'Note "{note.title}" has been rejected.')
         return redirect('moderation:dashboard')
     
-    return render(request, 'moderation/reject_note.html', {'note': note})
+    return render(request, 'notes/reject_note.html', {'note': note})
 
 
 @user_passes_test(is_moderator)
