@@ -25,16 +25,21 @@ def moderator_dashboard(request):
             'uploaded_by', 'subject', 'course', 'semester'
         ).order_by('-created_at')[:10]
     else:
-        # Show only notes assigned to this moderator
+        # Show notes assigned to this moderator
         pending_notes = Note.objects.filter(status='pending', assigned_moderator=user)
-        # Fallback to specialization match if nothing assigned
+
+        # Fallback: show unassigned notes matching specialization
+        # (never show notes assigned to a different moderator)
         if not pending_notes.exists():
             spec_subjects = user.specialization_subjects.all()
-            spec_courses = user.specialization_courses.all()
+            spec_courses  = user.specialization_courses.all()
+            unassigned    = Note.objects.filter(status='pending', assigned_moderator__isnull=True)
             if spec_subjects.exists():
-                pending_notes = Note.objects.filter(status='pending', subject__in=spec_subjects)
+                pending_notes = unassigned.filter(subject__in=spec_subjects)
             elif spec_courses.exists():
-                pending_notes = Note.objects.filter(status='pending', course__in=spec_courses)
+                pending_notes = unassigned.filter(course__in=spec_courses)
+            else:
+                pending_notes = unassigned
         recent_notes = pending_notes.select_related(
             'uploaded_by', 'subject', 'course', 'semester'
         ).order_by('-created_at')[:10]
