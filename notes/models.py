@@ -67,7 +67,7 @@ class Subject(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.code} - {self.name} ({self.course.code}, Sem {self.semester.number})"
+        return f"{self.code} - {self.name} ({self.course.code}, {self.semester.name})"
 
 
 class Institution(models.Model):
