@@ -1,52 +1,87 @@
 {% extends 'base.html' %}
+{% block title %}NoteGhar — Share & Learn Together{% endblock %}
 
-{% block title %}NoteGhar - Share & Learn Together{% endblock %}
+{% block extra_css %}
+<style>
+.hero { background: var(--dark); padding: 96px 0 80px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -60px; right: -80px; width: 500px; height: 500px; background: rgba(37,99,235,.12); border-radius: 50%; pointer-events: none; }
+.hero::after  { content: ''; position: absolute; bottom: -80px; left: -60px; width: 360px; height: 360px; background: rgba(124,58,237,.1); border-radius: 50%; pointer-events: none; }
+.hero-eyebrow { display: inline-flex; align-items: center; gap: 6px; background: rgba(37,99,235,.2); color: #93C5FD; font-size: .8rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; margin-bottom: 20px; }
+.hero h1 { font-size: clamp(2.25rem,5vw,3.25rem); font-weight: 800; color: #F1F5F9; line-height: 1.12; letter-spacing: -0.04em; margin-bottom: 18px; }
+.hero h1 span { color: #60A5FA; }
+.hero p { font-size: 1.0625rem; color: #94A3B8; max-width: 480px; line-height: 1.7; margin-bottom: 32px; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-visual { display: flex; align-items: center; justify-content: center; }
+.hero-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 28px; width: 100%; max-width: 340px; backdrop-filter: blur(10px); }
+.hero-card .hc-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.hero-card .hc-row:last-child { border: none; }
+.hero-card .hc-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(37,99,235,.3); display: flex; align-items: center; justify-content: center; color: #93C5FD; font-size: .875rem; flex-shrink: 0; }
+.hero-card .hc-text { font-size: .8rem; color: #E2E8F0; font-weight: 500; }
+.hero-card .hc-badge { margin-left: auto; font-size: .7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+.hc-badge.approved { background: rgba(5,150,105,.25); color: #6EE7B7; }
+.hc-badge.pending  { background: rgba(217,119,6,.25);  color: #FCD34D; }
+
+.login-strip { background: #F8FAFC; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 24px 0; }
+.login-strip .ls-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; }
+.login-strip .ls-label { font-size: .875rem; font-weight: 600; color: var(--text-muted); }
+
+.stats-strip { padding: 64px 0; background: var(--surface); border-bottom: 1px solid var(--border); }
+.stat-num { font-size: 2.25rem; font-weight: 800; color: var(--primary); letter-spacing: -0.04em; }
+.stat-lbl { font-size: .85rem; color: var(--text-muted); font-weight: 500; }
+
+.features { padding: 80px 0; }
+.feat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; height: 100%; transition: all .2s; }
+.feat-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.feat-icon { width: 52px; height: 52px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #fff; margin-bottom: 18px; }
+.feat-card h4 { font-size: 1.0625rem; font-weight: 700; margin-bottom: 8px; }
+.feat-card p  { font-size: .875rem; color: var(--text-muted); line-height: 1.7; margin: 0; }
+
+.steps { padding: 80px 0; background: var(--body-bg); }
+.step-num { width: 52px; height: 52px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.step-card { text-align: center; padding: 0 16px; }
+.step-card h4 { font-weight: 700; font-size: 1.0625rem; margin-bottom: 8px; }
+.step-card p  { font-size: .875rem; color: var(--text-muted); margin: 0; line-height: 1.7; }
+
+.cta-section { background: var(--primary); padding: 80px 0; text-align: center; }
+.cta-section h2 { font-size: 2.25rem; font-weight: 800; color: #fff; letter-spacing: -0.03em; margin-bottom: 12px; }
+.cta-section p  { font-size: 1.0625rem; color: rgba(255,255,255,.85); margin-bottom: 32px; }
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
+<!-- HERO -->
+<section class="hero">
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row align-items-center gy-5">
             <div class="col-lg-6">
-                <h1>Your Academic <span>Success</span> Starts Here</h1>
-                <p>Join thousands of students sharing knowledge, collaborating on notes, and building a stronger academic community together.</p>
-                
-                <div class="cta-buttons mt-4">
-                    <a href="{% url 'accounts:signup_student' %}" class="btn btn-primary btn-lg me-3">
-                        <i class="fas fa-user-graduate"></i> Join as Student
+                <div class="hero-eyebrow"><i class="fas fa-graduation-cap"></i> For Students, By Students</div>
+                <h1>Your <span>Academic Notes</span> Hub in Nepal</h1>
+                <p>Upload, discover and download quality-reviewed study materials. Every note is checked by subject-specialist moderators before going live.</p>
+                <div class="hero-cta">
+                    <a href="{% url 'accounts:signup_student' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-graduate"></i> Get Started Free
                     </a>
-                    <a href="{% url 'accounts:signup_moderator' %}" class="btn btn-success btn-lg">
-                        <i class="fas fa-shield-alt"></i> Become a Moderator
+                    <a href="{% url 'notes:list' %}" class="btn btn-white btn-lg">
+                        <i class="fas fa-compass"></i> Browse Notes
                     </a>
                 </div>
             </div>
-            
-            <div class="col-lg-6 text-center">
-                <div class="hero-illustration">
-                    <i class="fas fa-book-reader" style="font-size: 10rem; color: var(--primary); opacity: 0.75;"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Login Section -->
-<section class="login-section py-4 bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <div class="login-container">
-                    <p class="login-text">Already have an account?</p>
-                    <div class="login-buttons">
-                        <a href="{% url 'accounts:student_login' %}" class="btn btn-outline-primary">
-                            <i class="fas fa-user-graduate"></i> Student Login
-                        </a>
-                        <a href="{% url 'accounts:moderator_login' %}" class="btn btn-outline-success">
-                            <i class="fas fa-shield-alt"></i> Moderator Login
-                        </a>
-                        <a href="{% url 'accounts:admin_login' %}" class="btn btn-outline-dark">
-                            <i class="fas fa-user-shield"></i> Admin Login
-                        </a>
+            <div class="col-lg-6 hero-visual">
+                <div class="hero-card">
+                    <div class="hc-row">
+                        <div class="hc-icon"><i class="fas fa-file-pdf"></i></div>
+                        <div class="hc-text">Data Structures &amp; Algorithms<br><span style="color:#64748B;font-size:.72rem;">BSc CSIT · Sem 3</span></div>
+                        <span class="hc-badge approved">Approved</span>
+                    </div>
+                    <div class="hc-row">
+                        <div class="hc-icon" style="background:rgba(124,58,237,.3); color:#C4B5FD;"><i class="fas fa-file-word"></i></div>
+                        <div class="hc-text">Operating Systems Notes<br><span style="color:#64748B;font-size:.72rem;">BCA · Sem 4</span></div>
+                        <span class="hc-badge approved">Approved</span>
+                    </div>
+                    <div class="hc-row">
+                        <div class="hc-icon" style="background:rgba(217,119,6,.25); color:#FCD34D;"><i class="fas fa-file-powerpoint"></i></div>
+                        <div class="hc-text">Database Management Systems<br><span style="color:#64748B;font-size:.72rem;">BE · Sem 5</span></div>
+                        <span class="hc-badge pending">Pending</span>
                     </div>
                 </div>
             </div>
@@ -54,176 +89,142 @@
     </div>
 </section>
 
-<!-- Stats Section -->
-<section class="stats-section">
+<!-- LOGIN STRIP -->
+<div class="login-strip">
     <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <span class="stat-number">2,500+</span>
-                    <p>Active Students</p>
-                </div>
+        <div class="ls-inner">
+            <span class="ls-label">Already have an account?</span>
+            <a href="{% url 'accounts:student_login' %}" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-graduate"></i> Student Login</a>
+            <a href="{% url 'accounts:moderator_login' %}" class="btn btn-outline-success btn-sm"><i class="fas fa-shield-alt"></i> Moderator Login</a>
+            <a href="{% url 'accounts:admin_login' %}" class="btn btn-outline-dark btn-sm"><i class="fas fa-user-shield"></i> Admin Login</a>
+        </div>
+    </div>
+</div>
+
+<!-- STATS -->
+<section class="stats-strip">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-num">2,500+</div>
+                <div class="stat-lbl">Active Students</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <span class="stat-number">5,000+</span>
-                    <p>Notes Shared</p>
-                </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-num">5,000+</div>
+                <div class="stat-lbl">Notes Shared</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <span class="stat-number">50+</span>
-                    <p>Expert Moderators</p>
-                </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-num">50+</div>
+                <div class="stat-lbl">Expert Moderators</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-box">
-                    <span class="stat-number">15+</span>
-                    <p>Universities</p>
-                </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-num">15+</div>
+                <div class="stat-lbl">Universities</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Features Section -->
-<section class="py-5">
+<!-- FEATURES -->
+<section class="features">
     <div class="container">
-        <h2 class="section-title">Why Choose NoteGhar?</h2>
-        <p class="section-subtitle">Everything you need for academic success in one platform</p>
-        
-        <div class="row g-4 mt-4">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Why choose NoteGhar?</h2>
+            <p class="section-sub mt-2">Everything you need for academic success in one platform</p>
+        </div>
+        <div class="row g-4">
             <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-upload"></i>
-                    </div>
-                    <h3>Easy Upload</h3>
-                    <p>Share your notes, assignments, and study materials with just a few clicks.</p>
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: var(--primary);"><i class="fas fa-upload"></i></div>
+                    <h4>Easy Upload</h4>
+                    <p>Share notes in PDF, DOCX or PPTX in seconds. Your materials help the whole community.</p>
                 </div>
             </div>
-            
             <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: var(--secondary);">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3>Smart Search</h3>
-                    <p>Find exactly what you need with intelligent search and filters.</p>
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: var(--success);"><i class="fas fa-shield-check"></i></div>
+                    <h4>Quality Assured</h4>
+                    <p>Every note is reviewed by subject-specialist moderators before going live — no junk.</p>
                 </div>
             </div>
-            
             <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: var(--accent);">
-                        <i class="fas fa-check-double"></i>
-                    </div>
-                    <h3>Quality Assured</h3>
-                    <p>Every note is reviewed by subject-specialized moderators.</p>
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: var(--accent);"><i class="fas fa-trophy"></i></div>
+                    <h4>Earn Rewards</h4>
+                    <p>Climb the leaderboard, earn badges and level up every time your notes get downloaded or rated.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: #0EA5E9;"><i class="fas fa-search"></i></div>
+                    <h4>Smart Search</h4>
+                    <p>Filter by course, semester, subject and tags to find exactly the material you need.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: #D97706;"><i class="fas fa-bookmark"></i></div>
+                    <h4>Bookmarks & History</h4>
+                    <p>Save notes for later and revisit your download history anytime.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feat-card">
+                    <div class="feat-icon" style="background: #059669;"><i class="fas fa-comments"></i></div>
+                    <h4>Rate & Review</h4>
+                    <p>Star-rate notes and leave reviews to help fellow students find the best resources.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- How It Works -->
-<section class="how-it-works">
+<!-- HOW IT WORKS -->
+<section class="steps">
     <div class="container">
-        <h2 class="section-title">How It Works</h2>
-        <p class="section-subtitle">Get started in 3 simple steps</p>
-        
-        <div class="row mt-5">
+        <div class="text-center mb-5">
+            <h2 class="section-title">How it works</h2>
+            <p class="section-sub mt-2">Get started in three simple steps</p>
+        </div>
+        <div class="row g-4">
             <div class="col-md-4">
                 <div class="step-card">
-                    <div class="step-number">1</div>
-                    <h3>Sign Up</h3>
-                    <p>Create your free account as a student or apply to become a moderator.</p>
+                    <div class="step-num">1</div>
+                    <h4>Create an Account</h4>
+                    <p>Sign up as a student in 30 seconds. Google sign-in supported.</p>
                 </div>
             </div>
-            
             <div class="col-md-4">
                 <div class="step-card">
-                    <div class="step-number">2</div>
-                    <h3>Upload or Browse</h3>
-                    <p>Share your notes or browse thousands of quality-checked materials.</p>
+                    <div class="step-num" style="background: var(--accent);">2</div>
+                    <h4>Upload or Browse</h4>
+                    <p>Share your notes or search thousands of quality-checked materials for your course.</p>
                 </div>
             </div>
-            
             <div class="col-md-4">
                 <div class="step-card">
-                    <div class="step-number">3</div>
-                    <h3>Learn & Grow</h3>
-                    <p>Download resources, rate materials, and collaborate with peers.</p>
+                    <div class="step-num" style="background: var(--success);">3</div>
+                    <h4>Learn & Grow</h4>
+                    <p>Download, rate, bookmark and collaborate with students across Nepal.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Final CTA -->
+<!-- CTA -->
 <section class="cta-section">
     <div class="container">
-        <h2>Ready to Start Your Journey?</h2>
-        <p>Join NoteGhar today and become part of a thriving academic community</p>
-        <div class="mt-4">
-            <a href="{% url 'accounts:register' %}" class="btn btn-white btn-lg me-3">
-                <i class="fas fa-user-plus"></i> Sign Up Now
+        <h2>Ready to level up your studies?</h2>
+        <p>Join thousands of students sharing knowledge on NoteGhar</p>
+        <div class="d-flex flex-wrap gap-3 justify-content-center">
+            <a href="{% url 'accounts:signup_student' %}" class="btn btn-white btn-lg">
+                <i class="fas fa-user-plus"></i> Join as Student
             </a>
-            <a href="{% url 'notes:list' %}" class="btn btn-outline" style="border-color: white; color: white;">
-                <i class="fas fa-search"></i> Browse Notes
+            <a href="{% url 'notes:list' %}" class="btn btn-lg" style="background:rgba(255,255,255,.15); color:#fff; border:1.5px solid rgba(255,255,255,.4);">
+                <i class="fas fa-compass"></i> Browse Notes
             </a>
         </div>
     </div>
 </section>
-
-<style>
-.cta-buttons .btn {
-    padding: 15px 30px;
-    font-weight: 600;
-    border-radius: 8px;
-}
-
-.login-section {
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-}
-
-.login-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    border: 2px solid var(--border);
-    text-align: center;
-}
-
-.login-text {
-    font-size: 1.1rem;
-    color: var(--dark);
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-}
-
-.login-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.login-buttons .btn {
-    padding: 12px 24px;
-    font-weight: 600;
-    border-width: 2px;
-}
-
-@media (max-width: 768px) {
-    .login-buttons {
-        flex-direction: column;
-    }
-    
-    .login-buttons .btn {
-        width: 100%;
-    }
-}
-</style>
 {% endblock %}
