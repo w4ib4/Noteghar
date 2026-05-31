@@ -76,7 +76,7 @@
           <div class="mb-3">
             <label class="form-label">Describe your qualifications <span style="color:var(--danger);">*</span></label>
             {{ form.qualifications }}
-            <div id="qual-bar" class="qual-bar fail"><i class="fas fa-times-circle me-1"></i>Minimum 25 words required</div>
+            <div id="qual-bar" class="qual-bar fail"><i class="fas fa-times-circle me-1"></i>Minimum 25 characters required</div>
             <div class="form-text">Explain your education, degrees, certifications and teaching experience</div>
             {% if form.qualifications.errors %}<div class="field-err">{% for e in form.qualifications.errors %}{{ e }}{% endfor %}</div>{% endif %}
           </div>
@@ -240,12 +240,12 @@
   var bar  = document.getElementById('qual-bar');
   if (!qual || !bar) return;
   function update() {
-    var words = qual.value.trim() ? qual.value.trim().split(/\s+/).length : 0;
-    var ok = words >= 25;
+    var chars = qual.value.trim().length;
+    var ok = chars >= 25;
     bar.className = 'qual-bar ' + (ok ? 'ok' : 'fail');
     bar.innerHTML = ok
-      ? '<i class="fas fa-check-circle me-1"></i>' + words + ' words \u2014 requirement met'
-      : '<i class="fas fa-times-circle me-1"></i>' + words + '/25 words \u2014 ' + (25-words) + ' more needed';
+      ? '<i class="fas fa-check-circle me-1"></i>' + chars + ' characters \u2014 requirement met'
+      : '<i class="fas fa-times-circle me-1"></i>' + chars + '/25 characters \u2014 ' + (25-chars) + ' more needed';
   }
   qual.addEventListener('input', update);
   update();

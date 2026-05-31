@@ -176,11 +176,11 @@ class ModeratorSignupForm(SignupForm):
 
     def clean_qualifications(self):
         text = self.cleaned_data.get('qualifications', '')
-        word_count = len(text.split())
-        if word_count < 25:
+        char_count = len(text.strip())
+        if char_count < 25:
             raise forms.ValidationError(
-                f'Please provide at least 25 words ({word_count} written so far). '
-                f'Describe your education, degrees, and relevant experience in detail.'
+                f'Please provide at least 25 characters ({char_count} written so far). '
+                f'Describe your education, degrees, and relevant experience.'
             )
         return text
 
@@ -280,7 +280,7 @@ class AdminSignupForm(SignupForm):
         user.is_superuser = True
         user.save()
         return user
-
+    
 # PROFILE UPDATE FORM
 class UserProfileForm(forms.ModelForm):
     """Profile update form"""
