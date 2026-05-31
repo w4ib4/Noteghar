@@ -8,6 +8,7 @@ running the server.
 
 from pathlib import Path
 from decouple import config, Csv
+
 # BASE
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,7 +18,11 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://127.0.0.1:8000,http://localhost:8000', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://127.0.0.1:8000,http://localhost:8000',
+    cast=Csv()
+)
 # APPLICATIONS
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -114,6 +119,7 @@ else:
                 'NAME': BASE_DIR / 'db.sqlite3',
             }
         }
+
 # AUTHENTICATION
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -131,6 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
+
 # EMAIL
 _email_backend = config('EMAIL_BACKEND', default='console')
 
@@ -156,6 +163,8 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET         = True
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 
 LOGIN_URL                = '/accounts/login/student/'
+ACCOUNT_LOGIN_ON_SIGNUP  = True   # Log in immediately after signup
+# ACCOUNT_SIGNUP_REDIRECT_URL = '/'  # Where to go after signup
 LOGIN_REDIRECT_URL       = 'core:home'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'core:home'
 ACCOUNT_LOGOUT_ON_GET    = True   # skip the "are you sure?" page
@@ -172,10 +181,12 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'online'},
     }
 }
+
 # RECAPTCHA
 RECAPTCHA_PUBLIC_KEY    = config('RECAPTCHA_PUBLIC_KEY',  default='')
 RECAPTCHA_PRIVATE_KEY   = config('RECAPTCHA_PRIVATE_KEY', default='')
 RECAPTCHA_REQUIRED_SCORE = config('RECAPTCHA_REQUIRED_SCORE', default=0.85, cast=float)
+
 # CRISPY FORMS
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK          = 'bootstrap5'
@@ -192,6 +203,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE     = 'Asia/Kathmandu'
 USE_I18N      = True
 USE_TZ        = True
+
 # STATIC & MEDIA
 STATIC_URL  = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'   # collectstatic target

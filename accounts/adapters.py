@@ -20,6 +20,18 @@ class CustomAccountAdapter(DefaultAccountAdapter):
             user.save()
         return user
 
+    def get_signup_redirect_url(self, request):
+        """
+        Redirect to the correct login page based on role after signup.
+        """
+        user = request.user
+        if hasattr(user, 'role') and user.role == 'moderator':
+            return '/accounts/login/moderator/'
+        elif hasattr(user, 'role') and user.role == 'admin':
+            return '/accounts/login/admin/'
+        else:
+            return '/accounts/login/student/'
+
     def get_login_redirect_url(self, request):
         """
         Redirect users based on their role after login.
