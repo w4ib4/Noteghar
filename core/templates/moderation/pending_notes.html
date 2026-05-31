@@ -51,12 +51,12 @@
                                         <form method="post" action="{% url 'moderation:approve_note' note.pk %}" class="d-inline">
                                             {% csrf_token %}
                                             <input type="hidden" name="next" value="moderation:pending_notes">
-                                            <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Approve this note?')">
+                                            <button type="submit" class="btn btn-success btn-sm" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;" onclick="return confirm('Approve this note?')">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                         </form>
-                                        <a href="{% url 'moderation:reject_note' note.pk %}" 
-                                           class="btn btn-danger">
+                                        <a href="{% url 'moderation:reject_note' note.pk %}"
+                                           class="btn btn-danger btn-sm" style="width:36px;height:36px;padding:0;display:inline-flex;align-items:center;justify-content:center;">
                                             <i class="fas fa-times"></i>
                                         </a>
                                     </div>
