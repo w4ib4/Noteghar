@@ -4,48 +4,37 @@ from notes.models import Institution, Course, Subject, Semester
 
 
 class Command(BaseCommand):
-    help = 'Clean up and set up only Herald College and Islington College data'
+    help = 'Set up institutions, courses and subjects'
 
     def handle(self, *args, **options):
         with transaction.atomic():
             self._setup_semesters()
-            self._clean_courses_and_subjects()
             self._clean_institutions()
             self._setup_herald()
             self._setup_islington()
+            self._setup_plus2()
         self.stdout.write(self.style.SUCCESS('\nDone.'))
 
-    # ── Semesters 1-6 only ───────────────────────────────────────────────────
+    # Semesters
     def _setup_semesters(self):
-        needed = {
+        semesters = {
             1: 'Semester 1', 2: 'Semester 2', 3: 'Semester 3',
             4: 'Semester 4', 5: 'Semester 5', 6: 'Semester 6',
+            7: 'Grade 11',   8: 'Grade 12',
         }
-        for number, name in needed.items():
-            Semester.objects.update_or_create(
-                number=number, defaults={'name': name}
-            )
-        # Remove extra semesters (7, 8, etc.)
-        removed = Semester.objects.exclude(number__in=needed.keys()).delete()
-        self.stdout.write(f'  Semesters: kept 1-6, removed extras: {removed[0]}')
+        for number, name in semesters.items():
+            Semester.objects.update_or_create(number=number, defaults={'name': name})
+        # Remove any other semesters
+        Semester.objects.exclude(number__in=semesters.keys()).delete()
+        self.stdout.write(f'  Semesters: {Semester.objects.count()} total')
 
-    # ── Remove all existing courses and subjects ─────────────────────────────
-    def _clean_courses_and_subjects(self):
-        subj_count = Subject.objects.count()
-        course_count = Course.objects.count()
-        Subject.objects.all().delete()
-        Course.objects.all().delete()
-        self.stdout.write(
-            f'  Removed {subj_count} subject(s) and {course_count} course(s)'
-        )
-
-    # ── Remove all institutions except the two we want ───────────────────────
+    #  Remove old institutions 
     def _clean_institutions(self):
-        keep = {'Herald College Kathmandu', 'Islington College'}
+        keep = {'Herald College Kathmandu', 'Islington College', '+2 / High School (Nepal)'}
         removed = Institution.objects.exclude(name__in=keep).delete()
         self.stdout.write(f'  Removed old institutions: {removed[0]}')
 
-    # ── Herald College ────────────────────────────────────────────────────────
+    #  Herald College 
     def _setup_herald(self):
         from django.utils.text import slugify
 
@@ -67,9 +56,7 @@ class Command(BaseCommand):
                 'slug':        'bsc-hons-computer-science',
             }
         )
-        self.stdout.write(f'  Course: {course.name}')
 
-        # (semester_number, name, code)
         subjects = [
             # Level 4 — Semester 1
             (1, 'Introductory Programming and Problem Solving', '4CS001'),
@@ -102,20 +89,17 @@ class Command(BaseCommand):
             semester = Semester.objects.get(number=sem_num)
             slug = slugify(f'{code}-{name}')[:50]
             _, was_created = Subject.objects.get_or_create(
-                name=name,
-                course=course,
-                semester=semester,
+                name=name, course=course, semester=semester,
                 defaults={'code': code, 'slug': slug},
             )
             if was_created:
                 created += 1
 
-        total = Subject.objects.filter(course=course).count()
-        self.stdout.write(f'  Subjects: {created} created ({total} total)')
+        self.stdout.write(f'  Herald: {course.name} — {created} subjects created')
 
-    # ── Islington College (placeholder — no courses yet) ─────────────────────
+    # Islington College 
     def _setup_islington(self):
-        islington, created = Institution.objects.get_or_create(
+        Institution.objects.get_or_create(
             name='Islington College',
             defaults={
                 'short_name': 'Islington',
@@ -124,5 +108,99 @@ class Command(BaseCommand):
                 'is_active':  True,
             }
         )
-        status = 'created' if created else 'already exists'
-        self.stdout.write(f'  Islington College: {status}')
+        self.stdout.write('  Islington College: ready (add courses when available)')
+
+    # +2 / High School 
+    def _setup_plus2(self):
+        from django.utils.text import slugify
+
+        institution, _ = Institution.objects.get_or_create(
+            name='+2 / High School (Nepal)',
+            defaults={
+                'short_name': '+2',
+                'location':   'Nepal',
+                'website':    '',
+                'is_active':  True,
+            }
+        )
+
+        # Two streams with shared and stream-specific subjects
+        streams = [
+            {
+                'name':        '+2 Science',
+                'code':        'PLUS2.SCI',
+                'description': 'Higher Secondary Level — Science Stream (NEB Nepal)',
+                'slug':        'plus2-science',
+                'subjects': [
+                    # Grade 11 — Semester 7
+                    (7, 'English',          'ENG'),
+                    (7, 'Nepali',           'NEP'),
+                    (7, 'Mathematics',      'MATH'),
+                    (7, 'Physics',          'PHY'),
+                    (7, 'Chemistry',        'CHEM'),
+                    (7, 'Biology',          'BIO'),
+                    (7, 'Computer Science', 'CS'),
+                    (7, 'Economics',        'ECO'),
+                    # Grade 12 — Semester 8
+                    (8, 'English',          'ENG'),
+                    (8, 'Nepali',           'NEP'),
+                    (8, 'Mathematics',      'MATH'),
+                    (8, 'Physics',          'PHY'),
+                    (8, 'Chemistry',        'CHEM'),
+                    (8, 'Biology',          'BIO'),
+                    (8, 'Computer Science', 'CS'),
+                    (8, 'Economics',        'ECO'),
+                ],
+            },
+            {
+                'name':        '+2 Management',
+                'code':        'PLUS2.MGT',
+                'description': 'Higher Secondary Level — Management Stream (NEB Nepal)',
+                'slug':        'plus2-management',
+                'subjects': [
+                    # Grade 11 — Semester 7
+                    (7, 'English',     'ENG'),
+                    (7, 'Nepali',      'NEP'),
+                    (7, 'Mathematics', 'MATH'),
+                    (7, 'Accounts',    'ACC'),
+                    (7, 'Business',    'BUS'),
+                    (7, 'Marketing',   'MKT'),
+                    (7, 'Computer Science', 'CS'),
+                    (7, 'Economics',    'ECO'),
+                    # Grade 12 — Semester 8
+                    (8, 'English',     'ENG'),
+                    (8, 'Nepali',      'NEP'),
+                    (8, 'Mathematics', 'MATH'),
+                    (8, 'Accounts',    'ACC'),
+                    (8, 'Business',    'BUS'),
+                    (8, 'Marketing',   'MKT'),
+                    (8, 'Computer Science', 'CS'),
+                    (8, 'Economics',    'ECO'),
+                ],
+            },
+        ]
+
+        total_created = 0
+        for stream in streams:
+            course, _ = Course.objects.get_or_create(
+                name=stream['name'],
+                defaults={
+                    'code':        stream['code'],
+                    'description': stream['description'],
+                    'slug':        stream['slug'],
+                }
+            )
+            for sem_num, name, code in stream['subjects']:
+                semester = Semester.objects.get(number=sem_num)
+                slug = slugify(f"{stream['code']}-{code}-{name}")[:50]
+                _, was_created = Subject.objects.get_or_create(
+                    name=name, course=course, semester=semester,
+                    defaults={'code': code, 'slug': slug},
+                )
+                if was_created:
+                    total_created += 1
+
+        self.stdout.write(
+            f'  +2 High School: 2 streams (Science + Management) — '
+            f'{total_created} subjects created'
+        )
