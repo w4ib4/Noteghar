@@ -161,10 +161,10 @@ ACCOUNT_SIGNUP_FIELDS       = ['email*', 'username*', 'password1*', 'password2*'
 ACCOUNT_EMAIL_VERIFICATION  = config('ACCOUNT_EMAIL_VERIFICATION', default='optional')
 ACCOUNT_CONFIRM_EMAIL_ON_GET         = True
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
-
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 LOGIN_URL                = '/accounts/login/student/'
 ACCOUNT_LOGIN_ON_SIGNUP  = True   # Log in immediately after signup
-# ACCOUNT_SIGNUP_REDIRECT_URL = '/'  # Where to go after signup
+ACCOUNT_SIGNUP_REDIRECT_URL = '/accounts/login/student/'  # Where to go after signup
 LOGIN_REDIRECT_URL       = 'core:home'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'core:home'
 ACCOUNT_LOGOUT_ON_GET    = True   # skip the "are you sure?" page
